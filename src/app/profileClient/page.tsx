@@ -6,7 +6,7 @@ export default function Home() {
     return (
       <ClienteLayout>
         <>
-          <Breadcrumb pageName="Contacto" />
+          <Breadcrumb pageName="Perfil" />
           <ProfileClient />
         </>
       </ClienteLayout>
