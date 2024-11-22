@@ -8,6 +8,8 @@ import Swal from "sweetalert2";
 import Loader from "@/components/common/Loader";
 import ClienteLayout from "@/components/Layouts/ClienteLayout";
 import Modal from "@/app/Modal/modal"; 
+import { Popover, Typography } from "antd";
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 const Register: React.FC = () => {
   const router = useRouter();
@@ -29,9 +31,11 @@ const Register: React.FC = () => {
   const [passwordStrength, setPasswordStrength] = useState("");
 
   useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user) {
-      router.push("/landing-client");
+    if (typeof window !== "undefined") {
+      const user = localStorage.getItem("user");
+      if (user) {
+        router.push("/");
+      }
     }
   }, [router]);
 
@@ -91,58 +95,30 @@ const Register: React.FC = () => {
       });
       return;
     }
-    try {
-      const checkResponse = await fetch('https://api-aguamarina-mysql-v2.onrender.com/api/v2/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ mail })
-      });
 
-      const checkResponseJson = await checkResponse.json();
+    const response = await fetch('https://api-aguamarina-mysql-v2.onrender.com/api/v2/verificationcodes_generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ mail })
+    });
 
-      if (!checkResponseJson.ok) {
-        await Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'El correo electrónico ya está registrado.',
-          confirmButtonColor: "#0000ff",
-        });
-        return;
-      }
+    const responseJson = await response.json();
 
-      const response = await fetch('https://api-aguamarina-mysql-v2.onrender.com/api/v2/verificationcodes_generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ mail })
-      });
-
-      const responseJson = await response.json();
-
-      if (!responseJson.ok) {
-        await Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Hubo un problema al generar el código de verificación',
-          confirmButtonColor: "#0000ff",
-        });
-      } else {
-        setFormData((prev) => ({
-          ...prev,
-          modalOpen: true,
-          verificationData: { mail },
-        }));
-      }
-    } catch (error) {
+    if (!responseJson.ok) {
       await Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Error en el servidor',
+        text: 'Hubo un problema al generar el código de verificación',
         confirmButtonColor: "#0000ff",
       });
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        modalOpen: true,
+        // verificationData: { mail },
+      }));
     }
   };
 
@@ -197,6 +173,16 @@ const Register: React.FC = () => {
     return passwordRegex.test(password);
   };
 
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhoneNumber = (phone: string) => {
+    const phoneRegex = /^[0-9]{10}$/;
+    return phoneRegex.test(phone);
+  };
+
   return (
     <ClienteLayout>
       <div className="rounded-[10px] bg-white shadow-1 dark:bg-gray-dark dark:shadow-card px-10 py-40">
@@ -215,7 +201,7 @@ const Register: React.FC = () => {
                       <input
                         type="text"
                         name="names"
-                        placeholder="Names"
+                        placeholder="Nombres"
                         onChange={handleInputChange}
                         required
                         className="w-full rounded-md border border-stroke bg-transparent px-5 py-3"
@@ -229,7 +215,7 @@ const Register: React.FC = () => {
                       <input
                         type="text"
                         name="lastnames"
-                        placeholder="Last Names"
+                        placeholder="Apellidos"
                         onChange={handleInputChange}
                         required
                         className="w-full rounded-md border border-stroke bg-transparent px-5 py-3"
@@ -243,26 +229,52 @@ const Register: React.FC = () => {
                       <input
                         type="email"
                         name="mail"
-                        placeholder="Email"
+                        placeholder="Correo"
                         onChange={handleInputChange}
                         required
                         className="w-full rounded-md border border-stroke bg-transparent px-5 py-3"
                       />
                     </div>
+
                     <div className="mb-[22px]">
                     <label className="mb-3 block text-lg font-medium text-dark dark:text-white">
                             Contraseña:
                             <span className="text-red">*</span>
-                        </label>
-                      <input
-                        type="password"
-                        name="password"
-                        placeholder="Password"
-                        onChange={handleInputChange}
-                        required
-                        className="w-full rounded-md border border-stroke bg-transparent px-5 py-3"
-                      />
+                    </label>
+                    <Popover placement="right" title={<span className="text-lg">Información</span>} content={
+                      <div className="p-2">
+                      <Typography color="textPrimary" className="text-gray-700 dark:text-white">
+                        Tu contraseña debe cumplir con:
+                      </Typography>
+                      <ul className="text-sm text-gray-700">
+                        <li>Al menos 8 caracteres</li>
+                        <li>Al menos una letra minúscula</li>
+                        <li>Al menos una letra mayúscula</li>
+                        <li>Al menos un número</li>
+                      </ul>
+                    </div>
+
+                    }>
+                  
+
+                      <div className="relative">
+                        <input
+                          type="password"
+                          name="password"
+                          placeholder="Contraseña"
+                          onChange={handleInputChange}
+                          required
+                          className="w-full rounded-md border border-stroke bg-transparent px-5 py-3"
+                        />
+                        <div className="absolute bottom-3 right-2 text-lg text-dark-6 dark:text-dark-4">
+                              <InfoOutlinedIcon />
+                        </div>
+                      </div>
+            
                       <small>{passwordStrength}</small>
+                      
+                      </Popover>
+                  
                     </div>
                     <div className="mb-[22px]">
                     <label className="mb-3 block text-lg font-medium text-dark dark:text-white">
@@ -272,7 +284,7 @@ const Register: React.FC = () => {
                       <input
                         type="password"
                         name="confirmPassword"
-                        placeholder="Confirm Password"
+                        placeholder="Confirmar contraseña"
                         onChange={handleInputChange}
                         required
                         className="w-full rounded-md border border-stroke bg-transparent px-5 py-3"
@@ -286,7 +298,7 @@ const Register: React.FC = () => {
                       <input
                         type="number"
                         name="dni"
-                        placeholder="DNI"
+                        placeholder="Cedula"
                         onChange={handleInputChange}
                         required
                         className="w-full rounded-md border border-stroke bg-transparent px-5 py-3"
@@ -300,7 +312,7 @@ const Register: React.FC = () => {
                       <input
                         type="text"
                         name="phone_number"
-                        placeholder="Phone Number"
+                        placeholder="Numero de telefono"
                         onChange={handleInputChange}
                         required
                         className="w-full rounded-md border border-stroke bg-transparent px-5 py-3"

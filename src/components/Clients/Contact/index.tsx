@@ -52,7 +52,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="mb-[20px] text-lg font-semibold text-dark dark:text-white">
-                      ¿Como Podemos ayudarte?
+                      ¿Como podemos ayudarte?
                     </h3>
                     <p className="text-base text-body-color dark:text-dark-6">
                       aguamarina.alquilermobiliario@gmail.com

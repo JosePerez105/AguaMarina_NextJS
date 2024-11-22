@@ -3,7 +3,7 @@
 import Footer from "@/components/Clients/Footer";
 import Header from "@/components/Clients/Header";
 import ScrollToTop from "@/components/Clients/ScrollToTop";
-import { SessionProvider } from "next-auth/react";
+// import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 import "@/css/Clientes/index.css";
 import "@/css/Clientes/prism-vsc-dark-plus.css";
@@ -22,31 +22,29 @@ import PreLoader from "@/components/Clients/Common/PreLoader";
   }, []);
 
   return (
-    <html suppressHydrationWarning={true} className="!scroll-smooth" lang="en">
-      {/*
-        <head /> will contain the components returned by the nearest parent
-        head.js. Find out more at https://beta.nextjs.org/docs/api-reference/file-conventions/head
-      */}
+    <html suppressHydrationWarning={true} /* className="!scroll-smooth" */ lang="en">
       <head />
 
       <body>
         {loading ? (
           <PreLoader />
         ) : (
-          <SessionProvider>
+          // <SessionProvider>
             <ThemeProvider
               attribute="class"
               enableSystem={false}
               defaultTheme="light"
             >
-                
+                <div>
                   <Header />
                   {children}
                   <Footer />
                   <ScrollToTop />
+                </div>
+                  
                 
             </ThemeProvider>
-          </SessionProvider>
+          // </SessionProvider>
         )}
       </body>
     </html>

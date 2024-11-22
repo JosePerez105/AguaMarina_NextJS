@@ -1,10 +1,58 @@
-import { useState } from "react";
+"use client"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import ClickOutside from "@/components/ClickOutside";
+import { checkToken } from "@/api/validations/check_cookie";
+import { Usuario } from "@/types/admin/Usuario";
+import { logOut } from "@/utils/validationsTokens";
+import Swal from "sweetalert2";
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const {data} = await checkToken();
+        console.log(data.names)
+        setData(data);
+      } catch (error) {
+        console.error("Error fetching payload:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  const logOutHandle = async() => {
+    const response = await logOut();
+
+    if(response) {
+      await Swal.fire({
+        icon: "success",
+        iconColor: "#fefefe",
+        color: "#fefefe",
+        title: "Cerrar Sesión",
+        text: "Sesión cerrada correctamente",
+        // confirmButtonColor: "#fefefe",
+        showConfirmButton: false,
+        timer: 3000,
+        background: "url(/images/grids/bg-modal-dark.jpeg)",
+        customClass: {
+          popup: 'rounded-3xl shadow shadow-6',
+        }
+      });
+    }
+    router.push("/login")
+    
+  }
 
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
@@ -27,8 +75,10 @@ const DropdownUser = () => {
           />
         </span>
 
-        <span className="flex items-center gap-2 font-medium text-dark dark:text-dark-6">
-          <span className="hidden lg:block">Jhon Smith</span>
+        <span className="flex items-center gap-2 font-medium text-dark dark:text-dark-6 w-[200px]">
+          <span className="hidden lg:block">
+            {loading ? (null) : `${data.names} ${data.lastnames}`}
+          </span>
 
           <svg
             className={`fill-current duration-200 ease-in ${dropdownOpen && "rotate-180"}`}
@@ -51,7 +101,7 @@ const DropdownUser = () => {
       {/* <!-- Dropdown Star --> */}
       {dropdownOpen && (
         <div
-          className={`absolute right-0 mt-7.5 flex w-[280px] flex-col rounded-lg border-[0.5px] border-stroke bg-white shadow-default dark:border-dark-3 dark:bg-gray-dark`}
+          className={`absolute right-0 mt-7.5 flex min-w-[280px] flex-col rounded-lg border-[0.5px] border-stroke bg-white shadow-default dark:border-dark-3 dark:bg-gray-dark`}
         >
           <div className="flex items-center gap-2.5 px-5 pb-5.5 pt-3.5">
             <span className="relative block h-12 w-12 rounded-full">
@@ -72,10 +122,10 @@ const DropdownUser = () => {
 
             <span className="block">
               <span className="block font-medium text-dark dark:text-white">
-                Jhon Smith
+              {loading ? (null) : `${data.names} ${data.lastnames}`}
               </span>
               <span className="block font-medium text-dark-5 dark:text-dark-6">
-                jonson@nextadmin.com
+              {loading ? (null) : `${data.mail}`}
               </span>
             </span>
           </div>
@@ -106,7 +156,7 @@ const DropdownUser = () => {
                     fill=""
                   />
                 </svg>
-                View profile
+                Ver Perfil
               </Link>
             </li>
 
@@ -136,12 +186,12 @@ const DropdownUser = () => {
                     fill=""
                   />
                 </svg>
-                Account Settings
+                Configuración
               </Link>
             </li>
           </ul>
           <div className="p-2.5">
-            <button className="flex w-full items-center gap-2.5 rounded-[7px] p-2.5 text-sm font-medium text-dark-4 duration-300 ease-in-out hover:bg-gray-2 hover:text-dark dark:text-dark-6 dark:hover:bg-dark-3 dark:hover:text-white lg:text-base">
+            <button onClick={logOutHandle} className="flex w-full items-center gap-2.5 rounded-[7px] p-2.5 text-sm font-semibold text-dark-4 duration-300 ease-in-out hover:bg-red-300 hover:text-red-600 dark:text-dark-6 dark:hover:bg-red-300 dark:hover:text-red-600 lg:text-base">
               <svg
                 className="fill-current"
                 width="18"
@@ -166,7 +216,7 @@ const DropdownUser = () => {
                   </clipPath>
                 </defs>
               </svg>
-              Logout
+              Cerrar Sesión
             </button>
           </div>
         </div>

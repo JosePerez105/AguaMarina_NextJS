@@ -22,7 +22,7 @@ export const fetchProducts = async (): Promise<Producto[]> => {
   }
 };
 
-export const fetchProductById = async (id: string | number): Promise<Producto[]> => {
+export const fetchProductById = async (id: string | number): Promise<Producto> => {
   try {
     const response = await fetch(`https://api-aguamarina-mysql-v2.onrender.com/api/v2/products/${id}`, {
       cache: "no-store",
@@ -36,6 +36,6 @@ export const fetchProductById = async (id: string | number): Promise<Producto[]>
     return data.body;
   } catch (error) {
     console.error("Error obteniendo el producto:", error);
-    return [];
+    throw error;
   }
 };

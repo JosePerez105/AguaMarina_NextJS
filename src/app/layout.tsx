@@ -3,12 +3,13 @@
 import Footer from "@/components/Clients/Footer";
 import Header from "@/components/Clients/Header";
 import ScrollToTop from "@/components/Clients/ScrollToTop";
-import { SessionProvider } from "next-auth/react";
+// import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 import "@/css/Clientes/index.css";
 import "@/css/Clientes/prism-vsc-dark-plus.css";
 import { useEffect, useState } from "react";
 import PreLoader from "@/components/Clients/Common/PreLoader";
+import { CartProvider } from "@/context/CartContext";
 
 export default function RootLayout({
   children,
@@ -18,19 +19,18 @@ export default function RootLayout({
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 1000);
+    setTimeout(() => setLoading(false), 100);
   }, []);
 
   return (
-    <html suppressHydrationWarning={true} className="!scroll-smooth" lang="en">
-      {/*
-        <head /> will contain the components returned by the nearest parent
-        head.js. Find out more at https://beta.nextjs.org/docs/api-reference/file-conventions/head
-      */}
+    <html suppressHydrationWarning={true} /* className="!scroll-smooth" */ lang="en">
+
       <head />
 
       <body>
-        {children}  
+        <CartProvider>
+          {children}  
+        </CartProvider>
       </body>
     </html>
   );

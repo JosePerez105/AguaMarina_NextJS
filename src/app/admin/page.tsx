@@ -14,9 +14,9 @@ export default function Home() {
   return (
     <>
     <NextUIProvider>
-      <DefaultLayout>
+      {/* <DefaultLayout> */}
         <ECommerce />
-      </DefaultLayout>
+      {/* </DefaultLayout> */}
     </NextUIProvider>
     </>
   );

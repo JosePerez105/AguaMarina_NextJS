@@ -1,5 +1,7 @@
 import React from "react";
 import { dataStats } from "@/types/dataStats";
+import formatCurrency from "@/utils/formatCurrency";
+
 
 const dataStatsList = [
   {
@@ -119,7 +121,6 @@ const dataStatsList = [
 ];
 
 const DataStatsOne: React.FC<dataStats> = () => {
-  
   return (
     <>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
@@ -138,7 +139,9 @@ const DataStatsOne: React.FC<dataStats> = () => {
             <div className="mt-6 flex items-end justify-between">
               <div>
                 <h4 className="mb-1.5 text-heading-6 font-bold text-dark dark:text-white">
-                  {item.value}
+                  {item.title === "Total Profit"
+                    ? formatCurrency(item.value)
+                    : item.value}
                 </h4>
                 <span className="text-body-sm font-medium">{item.title}</span>
               </div>

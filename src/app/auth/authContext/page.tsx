@@ -1,28 +1,34 @@
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+// contexts/AuthContext.js
+import { createContext, useContext, useState, useEffect } from 'react';
 
-interface AuthContextType {
-    isAuthenticated: boolean;
-    setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
-}
+const AuthContext = createContext();
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const useAuth = () => useContext(AuthContext);
 
-interface AuthProviderProps {
-    children: ReactNode;
-}
+export const AuthProvider = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-        return localStorage.getItem('isAuthenticated') === 'true';
-    });
+  useEffect(() => {
+    // Aquí podrías verificar si el usuario está autenticado, por ejemplo, mirando el localStorage o haciendo una llamada a una API
+    const user = localStorage.getItem('user'); // Si tienes algo guardado en el localStorage
+    if (user) {
+      setIsAuthenticated(true);
+    }
+  }, []);
 
-    useEffect(() => {
-        localStorage.setItem('isAuthenticated', isAuthenticated.toString());
-    }, [isAuthenticated]);
+  const login = () => {
+    setIsAuthenticated(true);
+    localStorage.setItem('user', 'true'); // Guarda algo que indique que el usuario está autenticado
+  };
 
-    return (
-        <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated }}>
-            {children}
-        </AuthContext.Provider>
-    );
+  const logout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('user'); // Elimina la información de autenticación
+  };
+
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

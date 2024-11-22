@@ -1,7 +1,19 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { TextField, Button, Container, Typography, Grid, Card } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Container,
+  Typography,
+  Grid,
+  Card,
+} from "@mui/material";
 import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
+import { checkToken } from "@/api/validations/check_cookie";
+import { logOut } from "@/utils/validationsTokens";
+import { fetchUserById } from "@/api/fetchs/get_usuarios";
+import ListaDir from "@/components/Lista/ListaDir";
 
 interface ClientData {
   id_user: string;
@@ -22,32 +34,34 @@ const ProfileClient: React.FC = () => {
     phone_number: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   const fetchClientData = async () => {
-    try {
-      const response = await fetch("https://api-aguamarina-mysql-v2.onrender.com/api/v2/check_cookie", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        credentials: "include",
-      });
+    setLoading(true);
+    const { result, data } = await checkToken();
 
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      const responseJson = await response.json();
-      setClientData(responseJson.body || {});
-    } catch (error) {
-      console.error("Error fetching client data:", error);
+    if (result) {
+      const userData = await fetchUserById(data.id_user); 
+      const dataClient = {
+        id_user: data.id_user,
+        names: userData.names,
+        lastnames: userData.lastnames,
+        dni: userData.dni,
+        mail: userData.mail,
+        phone_number: userData.phone_number,
+      };
+      setClientData(dataClient);
+    } else {
       Swal.fire({
         icon: "error",
         title: "Error",
         text: "No se pudo cargar los datos del perfil.",
       });
+      router.push("/login");
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -63,7 +77,7 @@ const ProfileClient: React.FC = () => {
   };
 
   const validateFields = () => {
-    const { names, lastnames, phone_number } = clientData;
+    const { names, lastnames, phone_number, mail } = clientData;
 
     if (!names.trim() || !/^[A-Za-záéíóúÁÉÍÓÚñÑ\s]+$/.test(names)) {
       Swal.fire({
@@ -82,33 +96,47 @@ const ProfileClient: React.FC = () => {
       return false;
     }
 
-    if (!/^\d{9}$/.test(phone_number)) {
+    if (!/^\d{10}$/.test(phone_number)) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "El número de teléfono debe tener 9 dígitos.",
+        text: "El número de teléfono debe tener 10 dígitos.",
+      });
+      return false;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(mail)) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "El correo electrónico no es válido.",
       });
       return false;
     }
 
     return true;
+    window.location.reload();
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (isSubmitting) return;
     if (!validateFields()) return;
+
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`https://api-aguamarina-mysql-v2.onrender.com/api/v2/users/${clientData.id_user}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
+      const response = await fetch(
+        `https://api-aguamarina-mysql-v2.onrender.com/api/v2/users/${clientData.id_user}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(clientData),
         },
-        body: JSON.stringify(clientData),
-      });
+      );
 
       const responseJson = await response.json();
       if (!response.ok) {
@@ -142,79 +170,173 @@ const ProfileClient: React.FC = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      const result = await logOut();
+
+      if (result) {
+        router.push("/login");
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo cerrar la sesión. Inténtalo nuevamente.",
+        });
+      }
+    } catch (error) {
+      console.error("Error en el logout:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Hubo un error al cerrar sesión.",
+      });
+    }
+  };
+
   return (
     <Container>
-      <Card variant="outlined" sx={{ padding: 3, marginTop: 3 }}>
+      <Card 
+      variant="outlined" 
+      sx={{
+        padding: 3, 
+        marginTop: 3,
+        backgroundColor: 'white', 
+        color: 'black',            
+        '&.dark': {
+          backgroundColor: '#1a202c', 
+          color: 'white',             
+        },
+      }}
+      className="dark:bg-gray-800 dark:text-white mb-5" 
+    >
         <Typography variant="h4" align="center" gutterBottom>
           Perfil del cliente
         </Typography>
-        <form onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                id="names"
-                label="Nombres"
-                variant="outlined"
-                fullWidth
-                value={clientData.names}
-                onChange={handleChange}
-                required
-              />
+        {loading ? (
+          <Typography variant="h6" align="center">
+            Cargando...
+          </Typography>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  id="names"
+                  label="Nombres"
+                  variant="outlined"
+                  fullWidth
+                  value={clientData.names}
+                  onChange={handleChange}
+                  required
+                  InputProps={{
+                    style: { color: "white" },}}
+                  color="info"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  id="lastnames"
+                  label="Apellidos"
+                  variant="outlined"
+                  fullWidth
+                  value={clientData.lastnames}
+                  onChange={handleChange}
+                  required
+                  InputProps={{
+                    style: { color: "white" },}}
+                  color="info"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  id="dni"
+                  label="Cedula"
+                  variant="outlined"
+                  fullWidth
+                  value={clientData.dni}
+                  onChange={handleChange}
+                  required
+                  disabled
+                  InputProps={{
+                    style: { color: "white" },}}
+                  color="info"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  id="mail"
+                  label="Correo Electrónico"
+                  variant="outlined"
+                  fullWidth
+                  value={clientData.mail}
+                  onChange={handleChange}
+                  required
+                  disabled
+                  InputProps={{
+                    style: { color: "white" },}}
+                  color="info"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  id="phone_number"
+                  label="Número de Teléfono"
+                  variant="outlined"
+                  fullWidth
+                  value={clientData.phone_number}
+                  onChange={handleChange}
+                  required
+                  InputProps={{
+                    style: { color: "white" },}}
+                  color="info"
+                />
+              </Grid>
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                id="lastnames"
-                label="Apellidos"
-                variant="outlined"
-                fullWidth
-                value={clientData.lastnames}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                id="dni"
-                label="DNI"
-                variant="outlined"
-                fullWidth
-                value={clientData.dni}
-                onChange={handleChange}
-                required
-                disabled
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                id="mail"
-                label="Correo Electrónico"
-                variant="outlined"
-                fullWidth
-                value={clientData.mail}
-                onChange={handleChange}
-                required
-                disabled
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                id="phone_number"
-                label="Número de Teléfono"
-                variant="outlined"
-                fullWidth
-                value={clientData.phone_number}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-          </Grid>
-          <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            <Button variant="contained" color="primary" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Actualizando..." : "Actualizar"}
-            </Button>
-          </div>
-        </form>
+            <div style={{ textAlign: "center", marginTop: "20px" }}>
+              <Button
+                className="mt-4 inline-block rounded-md bg-primary px-4 py-2 text-center text-sm font-medium text-white transition duration-300 hover:bg-primary/90 lg:mt-0"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Actualizando..." : "Actualizar"}
+              </Button>
+              <Button
+                className="mt-4  rounded-md bg-primary px-4 py-2 text-center text-sm font-medium text-white transition duration-300 hover:bg-primary/90 lg:mt-0 capitalize"
+                onClick={handleLogout}
+              >
+                Cerrar sesión
+              </Button>
+            </div>
+          </form>
+        )}
       </Card>
+
+      {loading ? (
+        <></>
+      ):
+      (
+        <Card 
+        variant="outlined" 
+        sx={{
+          padding: 3, 
+          marginTop: 3,
+          backgroundColor: 'white', 
+          color: 'black',            
+          '&.dark': {
+            backgroundColor: '#1a202c', 
+            color: 'white',             
+          },
+        }}
+        className="dark:bg-gray-800 dark:text-white mb-10" 
+      >
+        <Typography variant="h4" align="center" gutterBottom>
+          Mis Direcciones
+        </Typography>
+        <ListaDir />
+      </Card>
+      )
+    }
+      
+
     </Container>
   );
 };

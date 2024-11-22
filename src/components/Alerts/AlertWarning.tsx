@@ -1,9 +1,9 @@
 import React from "react";
 
-const AlertWarning = () => {
+const AlertWarning: React.FC<{title?: any, text?: any}> = ({title="Titulo por Defecto", text}) => {
   return (
     <>
-      <div className="flex w-full rounded-[10px] border-l-6 border-[#FFB800] bg-[#FEF5DE] px-7 py-8 dark:bg-[#1B1B24] dark:bg-opacity-30 md:p-9">
+      <div className="flex w-full rounded-[10px] border-l-6 border-[#FFB800] bg-[#FEF5DE] px-3 py-5  dark:bg-[#1B1B24] dark:bg-opacity-30 ">
         <div className="mr-5 flex h-9 w-9 items-center justify-center rounded-lg bg-[#FBBF24]">
           <svg
             width="20"
@@ -21,13 +21,11 @@ const AlertWarning = () => {
           </svg>
         </div>
         <div className="w-full">
-          <h5 className="mb-3.5 text-lg font-bold leading-[22px] text-[#9D5425]">
-            Attention needed
+          <h5 className="text-2xl font-bold  text-[#9D5425]">
+            {title}
           </h5>
-          <p className="w-full max-w-[740px] text-[#D0915C]">
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry&apos;s standard dummy
-            text ever since the 1500s, when
+          <p className="w-full text-lg max-w-[740px] text-[#D0915C]">
+            {text}
           </p>
         </div>
       </div>

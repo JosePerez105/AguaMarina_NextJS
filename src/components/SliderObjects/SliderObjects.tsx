@@ -8,9 +8,10 @@ import { IconButton, Dialog, DialogContent } from "@mui/material";
 
 interface SliderObjectsProps {
     urls: string[];
+    id_product: string;
 }
 
-const SliderObjects: React.FC<SliderObjectsProps> = ({ urls }) => {
+const SliderObjects: React.FC<SliderObjectsProps> = ({ urls, id_product }) => {
     const [open, setOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState<string>("");
     const sliderRef = useRef<Slider | null>(null);

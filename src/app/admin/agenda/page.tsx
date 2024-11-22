@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLaout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import CalendarBox from "@/components/CalenderBox";
+import AgendaPrueba from "@/components/Agenda/AgendaPrueba";
 
 export const metadata: Metadata = {
   title: "Calender Page",
@@ -14,13 +15,14 @@ export const metadata: Metadata = {
 
 const CalendarPage = () => {
   return (
-    <DefaultLayout>
+    // <DefaultLayout>
       <div className="mx-auto max-w-7xl">
         <Breadcrumb pageName="Calendar" />
 
-        <CalendarBox />
+        {/* <CalendarBox /> */}
+        <AgendaPrueba />
       </div>
-    </DefaultLayout>
+    // </DefaultLayout>
   );
 };
 

@@ -1,6 +1,6 @@
-/* import * as React from 'react';
+import * as React from 'react';
 import { PieChart } from '@mui/x-charts/PieChart';
-import { fetchProducts } from "@/api/fetchs/fetch_productos"; // Asegúrate de que la ruta sea correcta  
+import { fetchProducts } from "@/api/fetchs/get_productos"; // Asegúrate de que la ruta sea correcta  
 
 // Función para formatear los datos para el gráfico
 const formatDataForChart = (products) => {
@@ -68,4 +68,3 @@ export default function PieActiveArc() {
     />
   );
 }
- */

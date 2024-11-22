@@ -2,7 +2,9 @@ import { Usuario } from "@/types/admin/Usuario";
 
 export const fetchUsers= async (): Promise<Usuario[]> => {
   try {
-    const response = await fetch("https://api-aguamarina-mysql-v2.onrender.com/api/v2/users");
+    const response = await fetch("https://api-aguamarina-mysql-v2.onrender.com/api/v2/users", {
+      cache: "no-store",
+    });
     if (!response.ok) {
       throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
@@ -14,7 +16,7 @@ export const fetchUsers= async (): Promise<Usuario[]> => {
   }
 };
 
-export const fetchUserById = async (id: string | number): Promise<Usuario[]> => {
+export const fetchUserById = async (id: string | number): Promise<Usuario> => {
     try {
       const response = await fetch(`https://api-aguamarina-mysql-v2.onrender.com/api/v2/users/${id}`);
       
@@ -25,7 +27,7 @@ export const fetchUserById = async (id: string | number): Promise<Usuario[]> => 
       const data = await response.json();
       return data.body;
     } catch (error) {
-      console.error("Error obteniendo el producto:", error);
-      return [];
+      console.error("Error obteniendo el usuario:", error);
+      throw error;
     }
   };

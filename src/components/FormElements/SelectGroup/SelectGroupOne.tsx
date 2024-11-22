@@ -54,13 +54,14 @@ const SelectGroupOne: React.FC<SelectGroupProps> = ({
             isOptionSelected ? "text-dark dark:text-white" : ""
           }`}
         >
-          <option value="" disabled className="text-dark-6 font-bold">
+          <option value="0" disabled className="text-dark-6 font-bold text-lg">
             {placeholder}
           </option>
           {opciones.map((opc) => (
-            <option key={opc.id} value={opc.id} className="dark:text-dark-6 text-dark-4 font-semibold">
-              {`${opc.id} - ${opc.name}`}
-            </option>
+              <option key={opc.id} value={opc.id} className="dark:text-dark-6 text-dark-4 text-lg">
+                {`${opc.id} - ${opc.name}`}
+              </option>
+            
           ))}
         </select>
 

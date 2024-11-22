@@ -1,21 +1,38 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import jwt from 'jsonwebtoken';
 
-export async function middleware(req: NextRequest) {
-    // Accediendo a la cookie 'jwt_ag'
-    const cookieValue = req.cookies.get('jwt_ag');
+interface JwtPayload {
+    id_user: number;
+    names: string;
+    lastnames: string;
+    dni: string;
+    mail: string;
+    phone_number: string;
+    id_rol: number;
+    status: boolean;
+    iat: number;
+    exp: number;
+  }
+  
 
-    console.log("Middleware ejecutado"); // Este debería aparecer en la consola del servidor
-    console.log({ cookieValue }); // Muestra el valor de la cookie en la consola del servidor
+export function middleware(req: NextRequest) {
+    
+    const token = req.cookies.get('token')?.value || "";
+    // console.log({token})
 
-    // if (!cookieValue) {
-    //     // Redirigir si la cookie no está presente
-    //     return NextResponse.redirect(new URL('/admin', req.url));
-    // }
+    if (!token) {
+        // Redirigir si la cookie no está presente
+        return NextResponse.redirect(new URL('/login', req.url));
+    }else {
+        const payload = jwt.decode(token) as JwtPayload;
+        if (payload.id_rol != 1)
+            return NextResponse.redirect(new URL('/login', req.url));
+    }
 
-    return NextResponse.next(); // Continúa con la solicitud
+  return NextResponse.next();
 }
 
 export const config = {
-    matcher: ['/admin/categorias', '/admin/productos']
+    matcher: ['/admin/:path*']
 };

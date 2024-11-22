@@ -7,41 +7,36 @@ const Faq = () => {
       <div className="container">
         <SectionTitle
           subtitle="FAQ"
-          title="Any Questions? Answered"
-          paragraph="There are many variations of passages of Lorem Ipsum available but the majority have suffered alteration in some form."
+          title="Preguntas frecuentes"
+          paragraph="Aquí encontrarás algunas de las preguntas que recibimos con frecuencia. Si tienes alguna otra duda, no dudes en contactarnos haciendo clic aquí."
           width="640px"
           center
         />
+        
 
         <div className="-mx-4 mt-[60px] flex flex-wrap lg:mt-20">
           <div className="w-full px-4 lg:w-1/2">
             <SingleFaq
-              question="How to use TailGrids?"
-              answer="It takes 2-3 weeks to get your first blog post ready. That includes the in-depth research & creation of your monthly content marketing strategy that we do before writing your first blog post, Ipsum available ."
+              question="¿Qué productos están disponibles?"
+              answer="Recuerda que tenemos una amplia selección de productos para hacer de tu evento algo único. Para saber cuántos productos están disponibles, te recomendamos que, antes de hacer tu selección en nuestro apartado de catálogo, elijas las fechas inicial y final de tu evento. De esta manera, podrás ver la disponibilidad exacta de los productos para las fechas que necesitas."
             />
             <SingleFaq
-              question="How to download icons from LineIcons?"
-              answer="It takes 2-3 weeks to get your first blog post ready. That includes the in-depth research & creation of your monthly content marketing strategy that we do before writing your first blog post, Ipsum available ."
+              question="¿Cómo puedo hacer que mi reserva sea confirmada?"
+              answer="Luego de cotizar tus productos, si no estás registrado, deberás proporcionar tu información personal. Es muy importante que realices el pago requerido y adjuntes el comprobante de pago. Una vez recibamos el comprobante, tu reserva será confirmada y podrás disfrutar de nuestros productos para tu evento."
             />
-            <SingleFaq
-              question="Is GrayGrids part of UIdeck?"
-              answer="It takes 2-3 weeks to get your first blog post ready. That includes the in-depth research & creation of your monthly content marketing strategy that we do before writing your first blog post, Ipsum available ."
-            />
+
           </div>
 
           <div className="w-full px-4 lg:w-1/2">
             <SingleFaq
-              question="Can I use this template for commercial project?"
-              answer="It takes 2-3 weeks to get your first blog post ready. That includes the in-depth research & creation of your monthly content marketing strategy that we do before writing your first blog post, Ipsum available ."
+              question="¿Qué pasa si malogro algún producto?"
+              answer="En caso de que un producto se malogre o se dañe durante tu evento, te pedimos que nos informes de inmediato. Dependiendo del tipo de daño, se aplicará una tarifa adicional para cubrir los costos de reparación o reposición del producto. Es importante revisar las condiciones de alquiler para conocer las responsabilidades y cuidados de los productos."
             />
             <SingleFaq
-              question="Do you have plan to releasing Play Pro?"
-              answer="It takes 2-3 weeks to get your first blog post ready. That includes the in-depth research & creation of your monthly content marketing strategy that we do before writing your first blog post, Ipsum available ."
+              question="¿Qué puedo hacer si encuentro un defecto en la página web?"
+              answer="Si encuentras algún defecto o problema en nuestra página web, te agradecemos que nos lo informes lo antes posible. Puedes contactarnos a través de nuestro formulario de contacto o enviarnos un correo electrónico detallando el problema que has encontrado. Nos comprometemos a revisar y solucionar cualquier inconveniente para ofrecerte una mejor experiencia."
             />
-            <SingleFaq
-              question="Where and how to host this template?"
-              answer="It takes 2-3 weeks to get your first blog post ready. That includes the in-depth research & creation of your monthly content marketing strategy that we do before writing your first blog post, Ipsum available ."
-            />
+
           </div>
         </div>
       </div>

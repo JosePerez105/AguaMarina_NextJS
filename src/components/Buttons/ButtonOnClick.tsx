@@ -2,8 +2,8 @@ import { Button } from "antd";
 import React from "react";
 
 interface ButtonPropTypes {
-  label: string;
-  customClasses: string;
+  label?: string;
+  customClasses?: string;
   onClick: any;
   children?: React.ReactNode;
 }

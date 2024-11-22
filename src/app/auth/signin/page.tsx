@@ -3,14 +3,14 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import ClienteLayout from "@/components/Layouts/ClienteLayout";
+import { validateLogin } from "@/api/validations/validate_login";
 
 const SignIn: React.FC = () => {
   const router = useRouter();
   const [loginData, setLoginData] = useState({
-    email: "",
+    mail: "",
     password: "",
   });
   const [loading, setLoading] = useState(false);
@@ -18,7 +18,7 @@ const SignIn: React.FC = () => {
   useEffect(() => {
     const user = localStorage.getItem("user");
     if (user) {
-      router.push("/landing-client");
+      router.push("/");
     }
   }, [router]);
 
@@ -26,67 +26,115 @@ const SignIn: React.FC = () => {
     e.preventDefault();
     setLoading(true);
 
+    
+
+
     try {
-      const response = await fetch(
-        "https://api-aguamarina-mysql-v2.onrender.com/api/v2/validate_login",
-        {
-          credentials: "include",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({ mail: loginData.email, password: loginData.password }),
-        }
-      );
+      const response = await validateLogin(loginData);
 
-      const responseJson = await response.json();
-
-      if (!response.ok) {
-        const errorMessage = responseJson.message || "No hay un usuario con los datos ingresados";
-        throw new Error(errorMessage);
-      }
-
-      if (responseJson.logged) {
+      if (response.result) {
         localStorage.setItem("isAuthenticated", "true");
-        const payload = responseJson.data;
 
-        if (payload && payload.id_rol === 1) {
-          await Swal.fire({
-            icon: "success",
-            title: "Bienvenido Administrador",
-            text: "Acceso concedido.",
-            confirmButtonColor: "#0000ff",
-          });
-        }
+        if (response.data.id_rol === 1) {
+              await Swal.fire({
+                icon: "success",
+                iconColor: "#fefefe",
+                color: "#fefefe",
+                title: "Bienvenido administrador",
+                text: "Acceso concedido.",
+                // confirmButtonColor: "#fefefe",
+                showConfirmButton: false,
+                timer: 3000,
+                background: "url(/images/grids/bg-modal-dark.jpeg)",
+                customClass: {
+                  popup: 'rounded-3xl shadow shadow-6',
+                }
+              });
+              // Esto lo puse provicional, luego hay que validar quienes tienen permisos al dashboard
+              router.push("/admin")
+            } else {
+              await Swal.fire({
+                icon: "success",
+                iconColor: "#fefefe",
+                color: "#fefefe",
+                title: "Bienvenido Usuario",
+                text: "Iniciaste Sesión.",
+                // confirmButtonColor: "#fefefe",
+                showConfirmButton: false,
+                timer: 3000,
+                background: "url(/images/grids/bg-modal-dark.jpeg)",
+                customClass: {
+                  popup: 'rounded-3xl shadow shadow-6',
+                }
+              });
+              router.push("/")
+            }
 
-        // Alerta de inicio de sesión exitoso
-        await Swal.fire({
-          icon: "success",
-          title: "Inicio de sesión exitoso",
-          text: "Redirigiendo a la página de inicio...",
-        });
 
-        toast.success("Login successful");
-        router.push("/landing-client");
-      } else {
-        const errorMessage = responseJson.message || "Error Desconocido";
-        toast.error(errorMessage);
-        await Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: errorMessage,
-          confirmButtonColor: "#0000ff",
-        });
       }
+      // const response = await fetch(
+      //   "https://api-aguamarina-mysql-v2.onrender.com/api/v2/validate_login",
+      //   {
+      //     credentials: "include",
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //       Accept: "application/json",
+      //     },
+      //     body: JSON.stringify({ mail: loginData.mail, password: loginData.password }),
+      //   }
+      // );
+
+      // const responseJson = await response.json();
+
+      // if (!response.ok) {
+      //   const errorMessage = responseJson.message || "No hay un usuario con los datos ingresados";
+      //   throw new Error(errorMessage);
+      // }
+
+      // if (responseJson.logged) {
+      //   await asignarCookie(responseJson.token);
+        
+      //   localStorage.setItem("isAuthenticated", "true");
+      //   const payload = responseJson.data;
+
+      //   if (payload && payload.id_rol === 1) {
+      //     await Swal.fire({
+      //       icon: "success",
+      //       title: "Bienvenido Administrador",
+      //       text: "Acceso concedido.",
+      //       confirmButtonColor: "#111928",
+      //     });
+      //   }
+
+      //   // Alerta de inicio de sesión exitoso
+      //   await Swal.fire({
+      //     icon: "success",
+      //     title: "Inicio de sesión exitoso",
+      //     text: "Redirigiendo a la página de inicio...",
+      //   });
+
+      //   toast.success("Login successful");
+      //   router.push("/");
+      // } else {
+      //   const errorMessage = responseJson.message || "Error Desconocido";
+      //   toast.error(errorMessage);
+      //   await Swal.fire({
+      //     icon: "error",
+      //     title: "Error",
+      //     text: errorMessage,
+      //     confirmButtonColor: "#111928",
+      //   });
+      // }
+      setLoginData({mail : "", password : ""})
     } catch (error: any) {
-      console.error("Error:", error);
-      await Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: error.message || "Error al iniciar sesión. Por favor, intenta de nuevo.",
-        confirmButtonColor: "#0000ff",
-      });
+      // console.error("Error:", error);
+      // await Swal.fire({
+      //   icon: "error",
+      //   title: "Error",
+      //   text: error.message || "Error al iniciar sesión. Por favor, intenta de nuevo.",
+      //   confirmButtonColor: "#111928",
+      // });
     } finally {
       setLoading(false);
     }
@@ -111,8 +159,9 @@ const SignIn: React.FC = () => {
                               </label>
                             <input
                               type="email"
-                              placeholder="Email"
-                              onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                              placeholder="Correo"
+                              value={loginData.mail}
+                              onChange={(e) => setLoginData({ ...loginData, mail: e.target.value })}
                               className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-dark outline-none transition placeholder:text-dark-6 focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white dark:focus:border-primary"
                               required
                             />
@@ -124,7 +173,8 @@ const SignIn: React.FC = () => {
                             </label>
                             <input
                               type="password"
-                              placeholder="Password"
+                              placeholder="Contraseña"
+                              value={loginData.password}
                               onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                               className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-dark outline-none transition placeholder:text-dark-6 focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white dark:focus:border-primary"
                               required

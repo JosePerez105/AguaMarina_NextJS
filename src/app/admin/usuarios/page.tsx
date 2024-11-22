@@ -3,7 +3,7 @@ import CardTable from "@/components/Tables/CardTable";
 
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLaout";
-import dataUsuarios from "./dataUsuarios";
+import DataUsuarios from "./dataUsuarios";
 
 export const metadata: Metadata = {
   title: "Lista de Usuarios",
@@ -12,14 +12,15 @@ export const metadata: Metadata = {
 
 const TablesPage = async() => {
   return (
-    <DefaultLayout>
-      <Breadcrumb pageName="Lista de Usuarios" />
+    // <DefaultLayout>
+      <div>
+      <Breadcrumb pageName="Lista de usuarios" />
 
       <div className="flex flex-col gap-10">
-        <CardTable data={dataUsuarios()}/>
+        <CardTable data={<DataUsuarios />}/>
       </div>
-      
-    </DefaultLayout>
+      </div>
+    // </DefaultLayout>
   );
 };
 

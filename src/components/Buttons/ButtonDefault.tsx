@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 
 interface ButtonPropTypes {
-  label: string;
+  label?: string;
   link: string;
   customClasses: string;
   children?: React.ReactNode;

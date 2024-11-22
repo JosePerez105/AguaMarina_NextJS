@@ -1,36 +1,64 @@
+"use client"
 import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import { fetchCategories } from "@/api/fetchs/get_categorias";
 import ButtonDefault from "@/components/Buttons/ButtonDefault";
+import { Categoria } from "@/types/admin/Categoria";
+import { useState, useEffect } from "react";
+import Loader from "@/components/common/Loader";
 
-const dataProductos = async () => {
-  const data = await fetchCategories();
+const dataCategorias = () => {
+  const [data, setData] = useState<Categoria[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // const data = await fetchCategories();
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const cateogorias = await fetchCategories();
+        setData(cateogorias);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   return (
       <div>
         <Table className="min-w-full">
           <TableHead>
             <TableRow>
-              <TableCell className="px-2 pb-3.5 font-medium uppercase text-sm dark:text-dark-6 w-5">
-                <h1 className="text-sm font-semibold uppercase xsm:text-base">
+              <TableCell className="px-2 pb-3.5 font-medium text-sm dark:text-dark-6 w-5">
+                <h1 className="text-sm font-semibold xsm:text-base">
                   Id
                 </h1>
               </TableCell>
-              <TableCell align="center" className="px-2 pb-3.5 font-medium uppercase text-sm dark:text-dark-6">
-                <h1 className="text-sm font-semibold uppercase xsm:text-base">Nombre Categoria</h1>
+              <TableCell align="center" className="px-2 pb-3.5 font-medium text-sm dark:text-dark-6">
+                <h1 className="text-sm font-semibold xsm:text-base">Nombre categoria</h1>
               </TableCell>
-              <TableCell align="center" className="px-2 pb-3.5 font-medium uppercase text-sm dark:text-dark-6">
-                <h1 className="text-sm font-semibold uppercase xsm:text-base">Cantidad Productos</h1>
+              <TableCell align="center" className="px-2 pb-3.5 font-medium text-sm dark:text-dark-6">
+                <h1 className="text-sm font-semibold xsm:text-base">Cantidad productos</h1>
               </TableCell>
-              <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium uppercase text-sm dark:text-dark-6 w-5">
-                <h1 className="text-sm font-semibold uppercase xsm:text-base">Acciones</h1>
+              <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium text-sm dark:text-dark-6 w-5">
+                <h1 className="text-sm font-semibold xsm:text-base">Acciones</h1>
               </TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
-            {data.map((categoria, key) => (
+          {loading ? (
+            <TableRow>
+              <TableCell colSpan={1000}>
+                <Loader />
+              </TableCell>
+            </TableRow>) : 
+            data.map((categoria, key) => (
               <TableRow
-                key={key}
+                key={categoria.id_category}
                 className={key !== data.length - 1 ? "border-b border-stroke dark:border-dark-3" : ""}
               >
 
@@ -74,4 +102,4 @@ const dataProductos = async () => {
   );
 };
 
-export default dataProductos;
+export default dataCategorias;

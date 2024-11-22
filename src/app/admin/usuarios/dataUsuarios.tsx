@@ -1,69 +1,82 @@
+"use client"
 import Image from "next/image";
 import { Table, TableBody, TableCell, TableHead, TableRow, Typography, Chip } from "@mui/material";
-import { fetchProducts } from "@/api/fetchs/get_productos";
 import { fetchUsers } from "@/api/fetchs/get_usuarios";
-import { Progress } from "antd";
 import ButtonDefault from "@/components/Buttons/ButtonDefault";
 import SwitcherThree from "@/components/FormElements/Switchers/SwitcherThree";
+import { Usuario } from "@/types/admin/Usuario";
+import { useState, useEffect } from "react";
+import Loader from "@/components/common/Loader";
 
 
-function formatCurrency(value: string | number): string {
-  const numericValue = typeof value === 'string' ? parseFloat(value) : value;
 
-  if (isNaN(numericValue)) {
-    return "Invalid price";
-  }
-
-  return numericValue.toLocaleString('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
-}
 
 const onChangeDatePicker = () => {
   console.log("Cambiado")
 }
 
-const dataUsuarios = async () => {
-  const data = await fetchUsers();
+const dataUsuarios = () => {
+  const [data, setData] = useState<Usuario[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const usuarios = await fetchUsers();
+        setData(usuarios);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  const totalUsuarios = data.length;
 
   return (
     <div>
       <Table className="min-w-full">
         <TableHead>
           <TableRow>
-            <TableCell className="px-2 pb-3.5 font-medium uppercase text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold uppercase xsm:text-base">
-                Nombre Completo
+            <TableCell className="px-2 pb-3.5 font-medium  text-sm dark:text-dark-6">
+              <h1 className="text-sm font-semibold  xsm:text-base">
+                Nombre completo
               </h1>
             </TableCell>
-            <TableCell align="center" className="px-2 pb-3.5 font-medium uppercase text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold uppercase xsm:text-base">Rol</h1>
+            <TableCell align="center" className="px-2 pb-3.5 font-medium  text-sm dark:text-dark-6">
+              <h1 className="text-sm font-semibold  xsm:text-base">Rol</h1>
             </TableCell>
-            <TableCell align="center" className="px-2 pb-3.5 font-medium uppercase text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold uppercase xsm:text-base">Documento</h1>
+            <TableCell align="center" className="px-2 pb-3.5 font-medium  text-sm dark:text-dark-6">
+              <h1 className="text-sm font-semibold  xsm:text-base">Documento</h1>
             </TableCell>
-            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium uppercase text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold uppercase xsm:text-base">Correo</h1>
+            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium  text-sm dark:text-dark-6">
+              <h1 className="text-sm font-semibold  xsm:text-base">Correo</h1>
             </TableCell>
-            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium uppercase text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold uppercase xsm:text-base">Teléfono</h1>
+            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium  text-sm dark:text-dark-6">
+              <h1 className="text-sm font-semibold  xsm:text-base">Teléfono</h1>
             </TableCell>
-            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium uppercase text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold uppercase xsm:text-base">Estado</h1>
+            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium  text-sm dark:text-dark-6">
+              <h1 className="text-sm font-semibold  xsm:text-base">Estado</h1>
             </TableCell>
-            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium uppercase text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold uppercase xsm:text-base">Acciones</h1>
+            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium  text-sm dark:text-dark-6">
+              <h1 className="text-sm font-semibold  xsm:text-base">Acciones</h1>
             </TableCell>
           </TableRow>
         </TableHead>
 
         <TableBody>
-          {data.map((usuario, key) => (
+        {loading ? (
+          <TableRow>
+            <TableCell colSpan={1000}>
+              <Loader />
+            </TableCell>
+          </TableRow>) : 
+          data.map((usuario, key) => (
             <TableRow
-              key={key}
+              key={usuario.id_user}
               className={key !== data.length - 1 ? "border-b border-stroke dark:border-dark-3" : ""}
             >
               {/* Nombres */}
@@ -121,12 +134,7 @@ const dataUsuarios = async () => {
               {/* Estado */}
               <TableCell align="center" className="hidden sm:table-cell px-2 py-4">
                 <div className="flex flex-col gap-3 items-center">
-                  <p className={`font-bold text-2xl text-dark font-estandar dark:text-dark-6 ${usuario.status == true ? "text-green-400" : "text-red-400"}`}> <Chip label={usuario.status == true ? "Activo" : "Inactivo"} 
-                  style={{
-                    backgroundColor: usuario.status ? "#4ade80" : "#f87171",
-                    fontSize: "18px"
-                  }}/></p>
-                  <SwitcherThree id={usuario.id_user.toString()} checked={usuario.status} />
+                  <SwitcherThree /* id={usuario.id_user.toString()} */ checked={usuario.status} />
                 </div>
               </TableCell>
               <TableCell align="center" className="hidden sm:table-cell px-2 py-4">

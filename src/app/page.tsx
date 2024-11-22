@@ -26,10 +26,10 @@ export default function Home() {
         <ScrollUp />
         <Hero />
         <Features />
-        <Pricing />
+        {/* <Pricing /> */}
         <About />
         <CallToAction />
-        <Testimonials />
+        {/* <Testimonials /> */}
         <Faq />
         <Team />
         {/* <HomeBlogSection posts={posts} /> */}
