@@ -160,7 +160,7 @@ const Register: React.FC = () => {
         title: 'Éxito',
         text: 'Usuario registrado exitosamente',
       });
-      router.push('/login-page');
+      router.push('/login');
     } catch (error) {
       console.error('Error al registrar el usuario:', error);
     } finally {
@@ -191,170 +191,170 @@ const Register: React.FC = () => {
             <div className="w-full sm:p-12.5 xl:p-15 p-4">
               <section>
                 <div className="container">
-                  <form onSubmit={handleSubmit}>
-                    {/* Form Fields */}
-                    <div className="mb-[22px]">
-                    <label className="mb-3 block text-lg font-medium text-dark dark:text-white">
-                            Nombre:
-                            <span className="text-red">*</span>
-                        </label>
-                      <input
-                        type="text"
-                        name="names"
-                        placeholder="Nombres"
-                        onChange={handleInputChange}
-                        required
-                        className="w-full rounded-md border border-stroke bg-transparent px-5 py-3"
-                      />
-                    </div>
-                    <div className="mb-[22px]">
-                    <label className="mb-3 block text-lg font-medium text-dark dark:text-white">
-                            Apelidos:
-                            <span className="text-red">*</span>
-                        </label>
-                      <input
-                        type="text"
-                        name="lastnames"
-                        placeholder="Apellidos"
-                        onChange={handleInputChange}
-                        required
-                        className="w-full rounded-md border border-stroke bg-transparent px-5 py-3"
-                      />
-                    </div>
-                    <div className="mb-[22px]">
-                    <label className="mb-3 block text-lg font-medium text-dark dark:text-white">
-                            Correo:
-                            <span className="text-red">*</span>
-                        </label>
-                      <input
-                        type="email"
-                        name="mail"
-                        placeholder="Correo"
-                        onChange={handleInputChange}
-                        required
-                        className="w-full rounded-md border border-stroke bg-transparent px-5 py-3"
-                      />
-                    </div>
+                <div className="wow fadeInUp relative mx-auto max-w-[700px] overflow-hidden rounded-lg bg-white px-8 py-14 dark:bg-dark-2 sm:px-12 md:px-[60px]" data-wow-delay=".15s">
 
-                    <div className="mb-[22px]">
-                    <label className="mb-3 block text-lg font-medium text-dark dark:text-white">
-                            Contraseña:
-                            <span className="text-red">*</span>
-                    </label>
-                    <Popover placement="right" title={<span className="text-lg">Información</span>} content={
-                      <div className="p-2">
-                      <Typography color="textPrimary" className="text-gray-700 dark:text-white">
-                        Tu contraseña debe cumplir con:
-                      </Typography>
-                      <ul className="text-sm text-gray-700">
-                        <li>Al menos 8 caracteres</li>
-                        <li>Al menos una letra minúscula</li>
-                        <li>Al menos una letra mayúscula</li>
-                        <li>Al menos un número</li>
-                      </ul>
-                    </div>
-
-                    }>
-                  
-
-                      <div className="relative">
+                    <form onSubmit={handleSubmit}>
+                      {/* Form Fields */}
+                      <div className="mb-[22px]">
+                        <label className="mb-3 block text-lg font-medium text-dark dark:text-white">
+                          Nombre:
+                          <span className="text-red">*</span>
+                        </label>
                         <input
-                          type="password"
-                          name="password"
-                          placeholder="Contraseña"
+                          type="text"
+                          name="names"
+                          placeholder="Nombres"
                           onChange={handleInputChange}
                           required
-                          className="w-full rounded-md border border-stroke bg-transparent px-5 py-3"
+                          className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-dark outline-none transition placeholder:text-dark-6 focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white dark:focus:border-primary"
                         />
-                        <div className="absolute bottom-3 right-2 text-lg text-dark-6 dark:text-dark-4">
-                              <InfoOutlinedIcon />
-                        </div>
                       </div>
-            
-                      <small>{passwordStrength}</small>
-                      
-                      </Popover>
-                  
-                    </div>
-                    <div className="mb-[22px]">
-                    <label className="mb-3 block text-lg font-medium text-dark dark:text-white">
-                            Confirmar contraseña:
-                            <span className="text-red">*</span>
+                      <div className="mb-[22px]">
+                        <label className="mb-3 block text-lg font-medium text-dark dark:text-white">
+                          Apellidos:
+                          <span className="text-red">*</span>
                         </label>
-                      <input
-                        type="password"
-                        name="confirmPassword"
-                        placeholder="Confirmar contraseña"
-                        onChange={handleInputChange}
-                        required
-                        className="w-full rounded-md border border-stroke bg-transparent px-5 py-3"
-                      />
-                    </div>
-                    <div className="mb-[22px]">
-                    <label className="mb-3 block text-lg font-medium text-dark dark:text-white">
-                            Cedula:
-                            <span className="text-red">*</span>
-                        </label>
-                      <input
-                        type="number"
-                        name="dni"
-                        placeholder="Cedula"
-                        onChange={handleInputChange}
-                        required
-                        className="w-full rounded-md border border-stroke bg-transparent px-5 py-3"
-                      />
-                    </div>
-                    <div className="mb-[22px]">
-                      <label className="mb-3 block text-lg font-medium text-dark dark:text-white">
-                            Celular:
-                            <span className="text-red">*</span>
-                        </label>
-                      <input
-                        type="text"
-                        name="phone_number"
-                        placeholder="Numero de telefono"
-                        onChange={handleInputChange}
-                        required
-                        className="w-full rounded-md border border-stroke bg-transparent px-5 py-3"
-                      />
-                    </div>
-                    <div className="mb-9">
-                      <label>
                         <input
-                          type="checkbox"
-                          checked={formData.acceptedTerms}
-                          onChange={handleCheckboxChange}
+                          type="text"
+                          name="lastnames"
+                          placeholder="Apellidos"
+                          onChange={handleInputChange}
+                          required
+                          className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-dark outline-none transition placeholder:text-dark-6 focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white dark:focus:border-primary"
                         />
-                        Acepto los términos y condiciones
-                      </label>
-                    </div>
-                    <div className="mb-9">
-                      <button
-                        type="submit"
-                        className="flex w-full cursor-pointer items-center justify-center rounded-md border border-primary bg-primary px-5 py-3 text-base text-white"
-                        disabled={formData.loading || !formData.acceptedTerms}
-                      >
-                        {formData.loading ? "REGISTRANDO..." : "CREAR CUENTA"}
-                      </button>
-                    </div>
-                  </form>
-                  <p className="text-body-secondary text-base">
-                    Estás registrado?{" "}
-                    <Link href="/login" className="text-primary hover:underline">Ingresa</Link>
-                  </p>
-
-                  {/* Modal for verification code */}
-                  <Modal
-                    isOpen={formData.modalOpen}
-                    onClose={() => setFormData((prev) => ({ ...prev, modalOpen: false }))}
-                    onSubmit={handleModalSubmit}
-                    data={{mail : formData.mail}}
-                  />
+                      </div>
+                      <div className="mb-[22px]">
+                        <label className="mb-3 block text-lg font-medium text-dark dark:text-white">
+                          Correo:
+                          <span className="text-red">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          name="mail"
+                          placeholder="Correo"
+                          onChange={handleInputChange}
+                          required
+                          className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-dark outline-none transition placeholder:text-dark-6 focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white dark:focus:border-primary"
+                        />
+                      </div>
+                      <div className="mb-[22px]">
+                        <label className="mb-3 block text-lg font-medium text-dark dark:text-white">
+                          Contraseña:
+                          <span className="text-red">*</span>
+                        </label>
+                        <Popover
+                          placement="right"
+                          title={<span className="text-lg">Información</span>}
+                          content={
+                            <div className="p-2">
+                              <Typography color="textPrimary" className="text-gray-700 dark:text-white">
+                                Tu contraseña debe cumplir con:
+                              </Typography>
+                              <ul className="text-sm text-gray-700">
+                                <li>Al menos 8 caracteres</li>
+                                <li>Al menos una letra minúscula</li>
+                                <li>Al menos una letra mayúscula</li>
+                                <li>Al menos un número</li>
+                              </ul>
+                            </div>
+                          }
+                        >
+                          <div className="relative">
+                            <input
+                              type="password"
+                              name="password"
+                              placeholder="Contraseña"
+                              onChange={handleInputChange}
+                              required
+                              className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-dark outline-none transition placeholder:text-dark-6 focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white dark:focus:border-primary"
+                            />
+                            <div className="absolute bottom-3 right-2 text-lg text-dark-6 dark:text-dark-4">
+                              <InfoOutlinedIcon />
+                            </div>
+                          </div>
+                          <small>{passwordStrength}</small>
+                        </Popover>
+                      </div>
+                      <div className="mb-[22px]">
+                        <label className="mb-3 block text-lg font-medium text-dark dark:text-white">
+                          Confirmar contraseña:
+                          <span className="text-red">*</span>
+                        </label>
+                        <input
+                          type="password"
+                          name="confirmPassword"
+                          placeholder="Confirmar contraseña"
+                          onChange={handleInputChange}
+                          required
+                          className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-dark outline-none transition placeholder:text-dark-6 focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white dark:focus:border-primary"
+                        />
+                      </div>
+                      <div className="mb-[22px]">
+                        <label className="mb-3 block text-lg font-medium text-dark dark:text-white">
+                          Cédula:
+                          <span className="text-red">*</span>
+                        </label>
+                        <input
+                          type="number"
+                          name="dni"
+                          placeholder="Cédula"
+                          onChange={handleInputChange}
+                          required
+                          className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-dark outline-none transition placeholder:text-dark-6 focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white dark:focus:border-primary"
+                        />
+                      </div>
+                      <div className="mb-[22px]">
+                        <label className="mb-3 block text-lg font-medium text-dark dark:text-white">
+                          Celular:
+                          <span className="text-red">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          name="phone_number"
+                          placeholder="Número de teléfono"
+                          onChange={handleInputChange}
+                          required
+                          className="w-full rounded-md border border-stroke bg-transparent px-5 py-3 text-base text-dark outline-none transition placeholder:text-dark-6 focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white dark:focus:border-primary"
+                        />
+                      </div>
+                      <div className="mb-9">
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={formData.acceptedTerms}
+                            onChange={handleCheckboxChange}
+                          />
+                          Acepto los términos y condiciones
+                        </label>
+                      </div>
+                      <div className="mb-9">
+                        <button
+                          type="submit"
+                          className="flex w-full cursor-pointer items-center justify-center rounded-md border border-primary bg-primary px-5 py-3 text-base text-white transition duration-300 ease-in-out hover:bg-primary/90"
+                          disabled={formData.loading || !formData.acceptedTerms}
+                        >
+                          {formData.loading ? "REGISTRANDO..." : "CREAR CUENTA"}
+                        </button>
+                      </div>
+                    </form>
+                    <p className="text-body-secondary text-base">
+                      ¿Estás registrado?{" "}
+                      <Link href="/login" className="text-primary hover:underline">
+                        Ingresar
+                      </Link>
+                    </p> 
+                    {/* Modal for verification code */}
+                    <Modal
+                      isOpen={formData.modalOpen}
+                      onClose={() => setFormData((prev) => ({ ...prev, modalOpen: false }))}
+                      onSubmit={handleModalSubmit}
+                      data={{ mail: formData.mail }}
+                    />
+                  </div>
                 </div>
               </section>
             </div>
           </div>
-
           <div className="hidden w-full p-7.5 xl:block xl:w-1/2 mb-15">
             <div className="custom-gradient-1 overflow-hidden rounded-2xl px-12.5 pt-1.5 dark:!bg-dark-2 dark:bg-none">
               <Link className="mb-10 inline-block" href="/">
@@ -374,17 +374,14 @@ const Register: React.FC = () => {
                 />
               </Link>
               <p className="mb-3 text-xl font-medium text-dark dark:text-white">
-                Registrate para obtener tu Cuenta
+                Regístrate para obtener tu Cuenta
               </p>
-
               <h1 className="mb-4 text-2xl font-bold text-dark dark:text-white sm:text-heading-3">
-                Bienvenido!
+                ¡Bienvenido!
               </h1>
-
               <p className="w-full max-w-[375px] font-medium text-dark-4 dark:text-dark-6">
-                Registrate completando todos los datos a continuación
+                Regístrate completando todos los datos a continuación
               </p>
-
               <div className="mt-31">
                 <Image
                   src={"/images/grids/grid-02.svg"}
@@ -400,6 +397,7 @@ const Register: React.FC = () => {
       </div>
     </ClienteLayout>
   );
+  
 };
 
 export default Register;

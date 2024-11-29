@@ -98,8 +98,6 @@ const Agenda = () => {
                       data-wow-delay=".15s"
                     >
                       <h2 className="mb-4 text-lg font-bold text-dark dark:text-white">Agenda de Reservas</h2>
-
-
                       <Calendar
                         localizer={localizer}
                         events={events}

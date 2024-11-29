@@ -8,19 +8,23 @@ const { RangePicker } = DatePicker;
 
 interface FechaProps {
   onDateChange: (dates: [string, string] | null) => void;
+  customClasses ?: string;
 }
 
-const Fecha: React.FC<FechaProps> = ({ onDateChange }) => {
+const Fecha: React.FC<FechaProps> = ({ onDateChange, customClasses }) => {
   const disabledDate = (current: any) => {
-    return current && current.isBefore(dayjs().startOf('day'), 'day'); // Usamos dayjs para comparar
+    return current && current.isBefore(dayjs().startOf('day'), 'day');
   };
 
   const handleDateChange: RangePickerProps['onChange'] = (dates, dateStrings) => {
     if (dates) {
       onDateChange([dateStrings[0], dateStrings[1]]);
+      sessionStorage.setItem('dates', JSON.stringify(dates));
     } else {
       onDateChange(null);
-    } 
+      sessionStorage.removeItem('dates');
+    }
+    
   };
 
   return (
@@ -38,7 +42,7 @@ const Fecha: React.FC<FechaProps> = ({ onDateChange }) => {
           size="large"
           onChange={handleDateChange}
           disabledDate={disabledDate}  
-          className='input rounded-xl border-gray-300 px-5 dark:bg-dark-4 text-dark-7 py-3 shadow-lg transition-all w-64 focus:border custom-range-picker'
+          className={`input rounded-xl border-gray-300 px-5 dark:bg-dark-4 text-dark-7 py-3 shadow-lg transition-all w-64 focus:border custom-range-picker ${customClasses}`}
         />
       </Space>
     </ConfigProvider>

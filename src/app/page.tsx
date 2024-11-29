@@ -31,7 +31,7 @@ export default function Home() {
         <CallToAction />
         {/* <Testimonials /> */}
         <Faq />
-        <Team />
+        {/* <Team /> tarjetas de equipo */} 
         {/* <HomeBlogSection posts={posts} /> */}
         <Contact />
         <Clients />

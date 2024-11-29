@@ -4,8 +4,10 @@ import { CartItem } from '@/types/Clients/cartItem';
 interface CartContextType {
   cartItems: CartItem[];
   cantBadge: number;
+  cantDays: number;
   addToCart: (item: CartItem) => void;
   removeFromCart: (id: number) => void;
+  deleteCart: () => void;
   increaseQuantity: (id: number) => void;
   decreaseQuantity: (id: number) => void;
   updateCartItemQuantity: (id: number, quantity: number) => void; // Añadido
@@ -16,6 +18,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cantBadge, setCantBadge] = useState(0);
+  const [cantDays, setcantDays] = useState(0);
 
   useEffect(() => {
     const storedCart = localStorage.getItem('cart');
@@ -44,6 +47,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     updateLocalStorage(updatedCart);
   };
+
+  const deleteCart = () => {
+    updateLocalStorage([]);
+  }
 
   const removeFromCart = (id: number) => {
     const updatedCart = cartItems.filter(item => item.id !== id);
@@ -78,8 +85,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <CartContext.Provider value={{
       cartItems,
       cantBadge,
+      cantDays,
       addToCart,
       removeFromCart,
+      deleteCart,
       increaseQuantity,
       decreaseQuantity,
       updateCartItemQuantity, // Proporcionamos la nueva función

@@ -6,6 +6,7 @@ import Link from "next/link";
 import Swal from "sweetalert2";
 import ClienteLayout from "@/components/Layouts/ClienteLayout";
 import { validateLogin } from "@/api/validations/validate_login";
+import LoaderFullScreen from "@/components/Loaders/LoaderFullScreen";
 
 const SignIn: React.FC = () => {
   const router = useRouter();
@@ -13,6 +14,7 @@ const SignIn: React.FC = () => {
     mail: "",
     password: "",
   });
+  const [loadingLogin, setLoadingLogin] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -26,49 +28,30 @@ const SignIn: React.FC = () => {
     e.preventDefault();
     setLoading(true);
 
-    
-
-
     try {
-      const response = await validateLogin(loginData);
+      const {data, result} = await validateLogin(loginData, setLoadingLogin);
 
-      if (response.result) {
-        localStorage.setItem("isAuthenticated", "true");
+      if (result) {
 
-        if (response.data.id_rol === 1) {
-              await Swal.fire({
-                icon: "success",
-                iconColor: "#fefefe",
-                color: "#fefefe",
-                title: "Bienvenido administrador",
-                text: "Acceso concedido.",
-                // confirmButtonColor: "#fefefe",
-                showConfirmButton: false,
-                timer: 3000,
-                background: "url(/images/grids/bg-modal-dark.jpeg)",
-                customClass: {
-                  popup: 'rounded-3xl shadow shadow-6',
-                }
-              });
-              // Esto lo puse provicional, luego hay que validar quienes tienen permisos al dashboard
-              router.push("/admin")
-            } else {
-              await Swal.fire({
-                icon: "success",
-                iconColor: "#fefefe",
-                color: "#fefefe",
-                title: "Bienvenido Usuario",
-                text: "Iniciaste Sesión.",
-                // confirmButtonColor: "#fefefe",
-                showConfirmButton: false,
-                timer: 3000,
-                background: "url(/images/grids/bg-modal-dark.jpeg)",
-                customClass: {
-                  popup: 'rounded-3xl shadow shadow-6',
-                }
-              });
-              router.push("/")
-            }
+        if (data && data.accessDashboard) {
+          //Inicio Sesión con permiso a Dashboard
+          
+          await Swal.fire({
+            icon: "success",
+            title: "Bienvenido, tienes acceso al Dashboard, pasasss",
+            text: "Acceso concedido.",
+            confirmButtonColor: "#0000ff",
+          });
+          router.push("/admin");
+          setLoadingLogin(true);
+        } else {
+          //Inicio Sesión Clientes
+          await Swal.fire({
+            icon: "success",
+            title: "Inicio de sesión exitoso",
+            text: "Redirigiendo a la página de inicio...",
+          });
+        }
 
 
       }
@@ -150,8 +133,8 @@ const SignIn: React.FC = () => {
                 <div className="container">
                   <div className="-mx-4 flex flex-wrap">
                     <div className="w-full px-4">
-                      <div className="wow fadeInUp relative mx-auto max-w-[525px] overflow-hidden rounded-lg bg-white px-8 py-14 text-center dark:bg-dark-2 sm:px-12 md:px-[60px]" data-wow-delay=".15s">
-                        <form onSubmit={loginUser}>
+                    <div className="wow fadeInUp relative mx-auto max-w-[700px] overflow-hidden rounded-lg bg-white px-8 py-14 dark:bg-dark-2 sm:px-12 md:px-[60px]" data-wow-delay=".15s">
+                    <form onSubmit={loginUser}>
                           <div className="mb-[22px]">
                           <label className="mb-3 block text-lg font-medium text-dark dark:text-white">
                             Correo:
@@ -247,6 +230,9 @@ const SignIn: React.FC = () => {
             </div>
           </div>
         </div>
+        {loadingLogin && (
+          <LoaderFullScreen />
+        )}
       </div>
     </ClienteLayout>
   );

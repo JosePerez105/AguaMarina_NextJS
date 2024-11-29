@@ -5,7 +5,7 @@ interface FiltroCategoriaProps {
   categories: { id_category: number; name: string }[];
   onCategorySelect: (selectedCategories: number[]) => void;
 }
-
+ 
 const FiltroCategoria: React.FC<FiltroCategoriaProps> = ({
   categories,
   onCategorySelect,
@@ -22,7 +22,7 @@ const FiltroCategoria: React.FC<FiltroCategoriaProps> = ({
       <Select
         mode="multiple"
         showSearch
-        className="input rounded-xl border-gray-300 px-5 dark:bg-dark-4 py-3 shadow-lg transition-all w-64 focus:border"
+        className="input rounded-xl border-gray-300 px-5 py-3 shadow-lg transition-all w-64 focus:border dark:bg-dark-4"
         placeholder="Selecciona categorías"
         value={selectedItems}
         onChange={handleChange}
@@ -32,7 +32,7 @@ const FiltroCategoria: React.FC<FiltroCategoriaProps> = ({
           color: "#5750f1",
         }}
         filterOption={(input, option) =>
-          (option?.children as string)
+          (option?.children as unknown as string)
             .toLowerCase()
             .includes(input.toLowerCase())
         }

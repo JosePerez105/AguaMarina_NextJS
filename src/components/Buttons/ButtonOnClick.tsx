@@ -17,7 +17,7 @@ const ButtonOnClick = ({
   return (
     <>
       <a
-        className={`inline-flex items-center justify-center gap-2.5 text-center font-medium hover:bg-opacity-90 hover:scale-110 duration-300 cursor-pointer ${customClasses}`}
+        className={`inline-flex items-center justify-center gap-2.5 text-center font-medium hover:bg-opacity-90 hover:scale-110 cursor-pointer ${customClasses}`}
         onClick={onClick}
       >
         {children}

@@ -10,11 +10,33 @@ import React, { useState, useEffect } from "react";
 import { Steps } from "antd";
 import { useCart } from "@/context/CartContext";
 import { RangePickerProps } from "antd/es/date-picker";
-import { LoadingOutlined, SmileOutlined, SolutionOutlined, UserOutlined } from "@ant-design/icons";
-import { TextField, Button, Container, Typography, Grid, Card, SelectChangeEvent, FormControl, Select, InputLabel, MenuItem } from "@mui/material";
+import {
+  LoadingOutlined,
+  SmileOutlined,
+  SolutionOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import {
+  TextField,
+  Button,
+  Container,
+  Typography,
+  Grid,
+  Card,
+  FormControl,
+  Select,
+  InputLabel,
+  MenuItem,
+} from "@mui/material";
 import { DatePicker, Space, ConfigProvider } from "antd";
 import { checkToken } from "@/api/validations/check_cookie";
-import { validateLogin } from "@/api/validations/validate_login"; 
+import { validateLogin } from "@/api/validations/validate_login";
+import { fetchAddressesByUser } from "@/api/fetchs/get_direcciones";
+import { Direccion } from "@/types/admin/Direccion";
+import ListaDir from "@/components/Lista/ListaDir";
+import BasicModal from "@/components/Modals/BasicModal";
+import SelectGroupOne from "@/components/FormElements/SelectGroup/SelectGroupOne";
+// import useDirecciones from "./useDirecciones";
 
 function formatCurrency(value: string | number): string {
   const numericValue = typeof value === "string" ? parseFloat(value) : value;
@@ -37,26 +59,87 @@ interface ImageData {
 }
 
 const reservas: React.FC = () => {
-  const { cartItems, cantBadge, removeFromCart, updateCartItemQuantity } = useCart();
+  const { cartItems, cantBadge, removeFromCart, updateCartItemQuantity } =
+    useCart();
   const [removedItemId, setRemovedItemId] = useState<number | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const { Step } = Steps;
   const { RangePicker } = DatePicker;
-  const onDateChange = (dates: [string, string] | null) => { return; };
-  const [direccion, setDireccion] = useState('');
+  const dates = JSON.parse(sessionStorage.getItem("dates") || "null");
+  const onDateChange = (dates: [string, string] | null) => {
+    return;
+  };
   const [loginData, setLoginData] = useState({ mail: "", password: "" });
-  const [loading, setLoading] = useState(false); 
-  
+  const [loading, setLoading] = useState(false);
+
+
+
+  const [direcciones, setDirecciones] = useState<Direccion[]>([]);
+  const [idUser, setIdUser] = useState();
+  const [isDireccionesLoading, setIsDireccionesLoading] = useState(false);
+
+
+  const [direccion, setDireccion] = useState<Direccion>();
+  const [formData, setFormData] = useState({
+    id_user: '',
+    start_date: dates[0],
+    end_date: dates[1],
+    id_address: "",
+    details: []
+});
+
+useEffect(() => {
+  console.log({formData, dias : dates[1] - dates[0]})
+}, [formData])
+
+  useEffect(() => {
+    if (currentStep === 1) {
+      const fetchDirecciones = async () => {
+        setIsDireccionesLoading(true);
+        try {
+          if (idUser) {
+            const addresses = await fetchAddressesByUser(idUser);
+            setDirecciones(addresses);
+            console.log({ addresses });
+          }
+        } catch (error) {
+          console.error("Error al cargar direcciones:", error);
+        } finally {
+          setIsDireccionesLoading(false);
+        }
+      };
+      fetchDirecciones();
+    }
+  }, [currentStep]);
 
   useEffect(() => {
     const checkIfLoggedIn = async () => {
-      const { result } = await checkToken();
+      const { result, data } = await checkToken();
       if (result) {
         setCurrentStep(1);
+        setIdUser(data.id_user);
+        setFormData(data.id_user);
       }
     };
     checkIfLoggedIn();
   }, []);
+
+  const handleChangeAddress = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const { value } = event.target; // Captura el valor seleccionado
+  
+    setFormData((prevState) => ({
+      ...prevState,
+      id_address: value,
+    }));
+  };
+
+  const handleNextStep = () => {
+    setCurrentStep((prevStep) => prevStep + 1);
+  };
+
+  const handlePreviousStep = () => {
+    setCurrentStep((prevStep) => Math.max(prevStep - 1, 0));
+  };
 
   const handleRemoveItem = (itemId: number) => {
     setRemovedItemId(itemId);
@@ -74,16 +157,8 @@ const reservas: React.FC = () => {
     updateCartItemQuantity(itemId, -1);
   };
 
-  const handleNextStep = () => {
-    setCurrentStep((prevStep) => prevStep + 1);
-  };
-
-  const handlePreviousStep = () => {
-    setCurrentStep((prevStep) => Math.max(prevStep - 1, 0));
-  };
-
   const disabledDate = (current: any) => {
-    return current && current.isBefore(dayjs().startOf("day"), "day"); 
+    return current && current.isBefore(dayjs().startOf("day"), "day");
   };
 
   const handleDateChange: RangePickerProps["onChange"] = (
@@ -95,10 +170,6 @@ const reservas: React.FC = () => {
     } else {
       onDateChange(null);
     }
-  };
-
-  const handleDireccionChange = (event: SelectChangeEvent<string>) => {
-    setDireccion(event.target.value);
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -113,7 +184,7 @@ const reservas: React.FC = () => {
           title: "Inicio de sesión exitoso",
           text: "Bienvenido a tu cuenta.",
         }).then(() => {
-          setCurrentStep(1); 
+          setCurrentStep(1);
         });
       } else {
         Swal.fire({
@@ -190,7 +261,6 @@ const reservas: React.FC = () => {
 
   return (
     <Container>
-      {/* Parte del formulario de reserva */}
       <Steps current={1}>
         <Step
           title={<span className="dark:text-white">Login</span>}
@@ -209,14 +279,17 @@ const reservas: React.FC = () => {
           icon={<SmileOutlined style={{ color: "#5750f1" }} />}
         />
       </Steps>
+
       {currentStep === 0 && (
-        <Card variant="outlined"
-        sx={{ padding: 2, marginTop: 2 }}
-        className="dark:bg-dark dark:text-white">
+        <Card
+          variant="outlined"
+          sx={{ padding: 2, marginTop: 2 }}
+          className="dark:bg-dark dark:text-white"
+        >
           <Typography variant="h5" align="center" gutterBottom>
             Iniciar Sesión
           </Typography>
-          <form onSubmit={handleLogin}> 
+          <form onSubmit={handleLogin}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
@@ -228,9 +301,12 @@ const reservas: React.FC = () => {
                   required
                   color="info"
                   InputProps={{
-                    style: { color: "white" },}} // Cambia el color del texto a blanco
+                    style: { color: "white" },
+                  }}
                   value={loginData.mail}
-                  onChange={(e) => setLoginData({ ...loginData, mail: e.target.value })}
+                  onChange={(e) =>
+                    setLoginData({ ...loginData, mail: e.target.value })
+                  }
                 />
               </Grid>
               <Grid item xs={12}>
@@ -242,16 +318,19 @@ const reservas: React.FC = () => {
                   fullWidth
                   required
                   InputProps={{
-                    style: { color: "white" },}}
+                    style: { color: "white" },
+                  }}
                   value={loginData.password}
-                  onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                  onChange={(e) =>
+                    setLoginData({ ...loginData, password: e.target.value })
+                  }
                   color="info"
                 />
               </Grid>
               <Grid item xs={12}>
                 <Button
-                  variant="contained"
-                  color="primary"
+                  className="mt-4 inline-block rounded-md bg-primary px-4 py-2 text-center text-sm font-medium text-white transition
+                   duration-300 hover:bg-primary/90 hover:text-white lg:mt-0"
                   fullWidth
                   type="submit"
                   disabled={loading}
@@ -285,58 +364,62 @@ const reservas: React.FC = () => {
                   }}
                 >
                   <Space direction="vertical" size={12}>
-                    <RangePicker
-                      size="large" // Este es el tamaño que controlará la apariencia
-                      onChange={handleDateChange}
-                      disabledDate={disabledDate}
-                      className="h-14 w-[132%] text-dark-7 dark:bg-dark-4"
-                    />
+                  <RangePicker
+                    size="large"
+                    disabled
+                    defaultValue={dates && dates.length === 2 ? [dayjs(dates[0]), dayjs(dates[1])] : undefined}
+                    onChange={handleDateChange}
+                    disabledDate={disabledDate}
+                    className="h-14 w-[132%] text-dark-7 dark:bg-dark-4"
+                  />
                   </Space>
                 </ConfigProvider>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormControl
-                  fullWidth
-                  required
-                  className="rounded-lg bg-white shadow-lg dark:bg-[#26334A]"
-                >
-                  <InputLabel id="direccion-label" style={{ color: "white" }}>
-                    Dirección
-                  </InputLabel>
-                  <Select
-                    labelId="direccion-label"
-                    id="direccion"
-                    label="Dirección"
-                    value={direccion} 
-                    onChange={handleDireccionChange} 
-                    className="text-dark-7 dark:bg-dark-4"
-                    MenuProps={{
-                      PaperProps: {
-                        style: { backgroundColor: "#26334A" },
-                      },
-                    }}
-                  >
-                    <MenuItem value="direccion1">Dirección 1</MenuItem>
-                    <MenuItem value="direccion2">Dirección 2</MenuItem>
-                    <MenuItem value="direccion3">Dirección 3</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
+                <div className="flex justify-center">
+                    {isDireccionesLoading ? (
+                      <MenuItem disabled>Cargando...</MenuItem>
+                    ) : idUser ? (
+                      <div className="just flex">
+                        <BasicModal
+                          tituloBtn="Mis Direcciones"
+                          tituloModal="Mis Direcciones"
+                        >
+                          <div>
+                            
+                          
+                          <ListaDir id_user={idUser} />
+                          {direcciones.map((dir) => (
+                            <div className="p-6 rounded-lg shadow-md bg-gray-50 dark:bg-dark-3">
+                              <Button>{dir.name}</Button>
+                            </div>
+                            
+                          ))}
+                          </div>
+                        </BasicModal>
+                        <SelectGroupOne 
+                            id="address"
+                            name="address"
+                            label="Dirección"
+                            placeholder="Selecciona una dirección"
+                            customClasses="mb-3 w-full"
+                            required
+                            // value={formData.id_category}
+                            opciones={direcciones.map((dir) =>  {return {id : dir.id_address, name : dir.name}})}
+                            onChange={handleChangeAddress}
+                        />
 
+                      </div>
+                    ) : (
+                      <div>
+                        <Typography>No estás registrado papi</Typography>
+                      </div>
+                    )}
+                </div>
+              </Grid>
               <Grid item xs={12} display="flex" justifyContent="space-between">
                 <Button
                   variant="contained"
-                  color="secondary"
-                  onClick={handlePreviousStep}
-                  className="flex w-full cursor-pointer items-center justify-center 
-                  rounded-md border border-primary bg-primary px-5 py-3 text-base text-white 
-                  transition duration-300 ease-in-out hover:bg-primary/90"
-                >
-                  Volver
-                </Button>
-                <Button
-                  variant="contained"
-                  color="primary"
                   onClick={handleNextStep}
                   className="flex w-full cursor-pointer items-center justify-center 
                   rounded-md border border-primary bg-primary px-5 py-3 text-base text-white 
@@ -400,7 +483,7 @@ const reservas: React.FC = () => {
           Proceso Completado
         </Typography>
       )}
-      {/* Aqui termina la parte del formulario de reserva */}
+
       {/* Parte de donde se ven los productos*/}
       <div className="mt-2 flex h-full flex-col justify-between space-y-4 text-dark dark:text-white">
         {cartItems.length > 0 ? (
@@ -412,7 +495,6 @@ const reservas: React.FC = () => {
                   removedItemId === item.id ? "scale-95 opacity-0" : ""
                 }`}
               >
-                {/* Imagen del producto */}
                 <div className="flex items-center space-x-4">
                   <Image
                     src={item.image || "https://via.placeholder.com/60"}
@@ -421,7 +503,6 @@ const reservas: React.FC = () => {
                     height={60}
                     className="h-16 w-16 rounded-md object-cover shadow-lg"
                   />
-                  {/* Información del producto */}
                   <div className="flex flex-col justify-between">
                     <span className="text-base font-semibold text-gray-800 dark:text-white">
                       {item.name.length > 20
@@ -431,19 +512,16 @@ const reservas: React.FC = () => {
                     <span className="text-sm text-gray-600 dark:text-gray-400">
                       Cantidad:
                       <div className="mt-1 flex items-center space-x-2">
-                        {/* Botón de disminución */}
                         <button
                           onClick={() => handleDecreaseQuantity(item.id)}
                           className="rounded-lg bg-gray-200 p-2 text-gray-800 transition duration-200 hover:bg-gray-300"
-                          disabled={item.quantity <= 1} // Deshabilitar si la cantidad es 1
+                          disabled={item.quantity <= 1}
                         >
                           -
                         </button>
-                        {/* Display de cantidad */}
                         <span className="text-md text-gray-800 dark:text-white">
                           {item.quantity}
                         </span>
-                        {/* Botón de aumento */}
                         <button
                           onClick={() => handleIncreaseQuantity(item.id)}
                           className="rounded-lg bg-gray-200 p-2 text-gray-800 transition duration-200 hover:bg-gray-300"
@@ -457,7 +535,6 @@ const reservas: React.FC = () => {
                     </span>
                   </div>
                 </div>
-                {/* Botón de eliminación */}
                 <div className="flex items-center">
                   <button
                     className="rounded-lg p-2 text-red-600 transition duration-300 hover:text-red-800"
@@ -474,7 +551,6 @@ const reservas: React.FC = () => {
             <AlertWarning title="Tu carrito está vacío" />
           </div>
         )}
-        {/* Contenedor de Total Fijo en la parte inferior */}
         {cartItems.length > 0 ? (
           <div className="sticky bottom-0 flex flex-col justify-between gap-5 border-t border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-dark-2">
             <p className="text-xl font-semibold text-gray-800 dark:text-white">
@@ -499,7 +575,6 @@ const reservas: React.FC = () => {
           <></>
         )}
       </div>
-      {/* Aqui termina la parte de donde se ven los productos*/}
     </Container>
   );
 };

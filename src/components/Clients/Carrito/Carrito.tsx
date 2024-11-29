@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Badge, Drawer } from 'antd';
+import { Badge, Drawer, Typography } from 'antd';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 import ButtonOnClick from '../../Buttons/ButtonOnClick';
@@ -10,7 +10,7 @@ import ButtonDefault from '@/components/Buttons/ButtonDefault';
 
 const Carrito: React.FC = () => {
   const [open, setOpen] = useState(false);
-  const { cartItems, cantBadge, removeFromCart, updateCartItemQuantity } = useCart();
+  const { cartItems, cantBadge, removeFromCart, deleteCart, updateCartItemQuantity } = useCart();
   const [removedItemId, setRemovedItemId] = useState<number | null>(null);
 
   const showDrawer = () => setOpen(true);
@@ -37,6 +37,10 @@ const Carrito: React.FC = () => {
     }, 300);
   };
 
+  const handleDeleteCart = () => {
+    deleteCart();
+  }
+
   const handleIncreaseQuantity = (itemId: number) => {
     updateCartItemQuantity(itemId, 1);
   };
@@ -49,9 +53,9 @@ const Carrito: React.FC = () => {
     <div className="m-5">
       <Badge count={cantBadge}>
         <ButtonOnClick
-          customClasses="text-xl font-semibold border border-primary text-primary hover:bg-primary duration-300 hover:text-white rounded-[5px] p-3"
+          customClasses="text-xl font-semibold text-black duration-300 hover:scale-125 hover:text-black rounded-[5px] p-3 dark:text-white"
           onClick={showDrawer}
-        >
+          >
           <ShoppingCartOutlinedIcon />
         </ButtonOnClick>
       </Badge>
@@ -67,6 +71,7 @@ const Carrito: React.FC = () => {
         <div className="text-dark dark:text-white flex flex-col justify-between h-full space-y-4">
           {cartItems.length > 0 ? (
             <div className="flex flex-col flex-grow space-y-4 overflow-y-auto overflow-x-hidden">
+              <span className="text-xl font-semibold text-gray-800 dark:text-white">Cantidad de Dias :  ({cantBadge})</span>
               {cartItems.map((item) => (
                 <div
                   key={item.id}
@@ -145,10 +150,15 @@ const Carrito: React.FC = () => {
             <ButtonDefault
               // onClick={() => { console.log("reservando..."); }}
               link='/pedido'
-              customClasses="duration-300 py-2 px-4 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-all"
+              customClasses="mt-4 lg:mt-0 inline-block rounded-md bg-primary px-4 py-2 text-center text-sm font-medium text-white transition duration-300 hover:bg-primary/90 hover:text-white"
             >
               Finalizar reserva
             </ButtonDefault>
+            <ButtonOnClick 
+              onClick={handleDeleteCart}
+            >
+              Vaciar Carrito
+            </ButtonOnClick>
           </div>
           ) : (
             <></>

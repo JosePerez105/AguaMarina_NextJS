@@ -5,7 +5,7 @@ import "@/css/satoshi.css";
 import "@/css/style.css";
 
 
-import React, { useState, ReactNode } from "react";
+import React, { useState, ReactNode, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 
@@ -15,6 +15,15 @@ export default function DefaultLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loadingLayout, setLoadingLayout] = useState<boolean>(true);
+
+  useEffect(() => {
+    const render = async() => {
+      setLoadingLayout(false);
+    };
+    render();
+  }, []);
+
   return (
     <>
       {/* <!-- ===== Page Wrapper Star ===== --> */}

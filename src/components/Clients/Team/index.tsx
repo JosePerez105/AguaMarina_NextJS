@@ -5,39 +5,9 @@ import SingleTeam from "./SingleTeam";
 const teamData: TeamType[] = [
   {
     id: 1,
-    name: "Mishel Lopez",
-    designation: "Desarrolladora",
+    name: "Nombre",
+    designation: "Puesto",
     image: "/images/team/team-01.png",
-
-    instagramLink: "/#",
-  },
-  {
-    id: 2,
-    name: "Jose Perez",
-    designation: "desarrollador",
-    image: "/images/team/team-02.png",
-    instagramLink: "/#",
-  },
-  {
-    id: 3,
-    name: "Emmanuel Vargas",
-    designation: "Desarrollador",
-    image: "/images/team/team-03.png",
-    instagramLink: "/#",
-  },
-  {
-    id: 4,
-    name: "Emanuel Calvo",
-    designation: "Back-end Dev",
-    image: "/images/team/team-04.png",
-
-    instagramLink: "/#",
-  },
-  {
-    id: 5,
-    name: "Kevin Ramirez",
-    designation: "Desarrollador",
-    image: "/images/team/team-04.png",
     instagramLink: "/#",
   },
 ];

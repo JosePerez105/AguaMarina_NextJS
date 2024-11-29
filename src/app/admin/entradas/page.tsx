@@ -16,7 +16,7 @@ const TablesPage = () => {
 
   const handleReload = () => {
     setReloadKey(prevKey => prevKey + 1);
-  };
+  }; 
 
   return (
     // <DefaultLayout>

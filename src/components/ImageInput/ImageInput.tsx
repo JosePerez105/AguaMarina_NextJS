@@ -86,7 +86,8 @@ const ImageInput: React.FC<ImageInputProps> = ({ setImages, clearImages, default
         showReset
         modalCancel="Cancelar"
         modalOk="Subir"
-        modalClassName="fixed inset-0 items-center text-center justify-center bg-opacity-30 z-50"
+        // rounded-[10px] border border-stroke bg-white shadow-1 dark:border-dark-3 dark:bg-gray-dark dark:shadow-card text-xl
+        modalClassName="backdrop-blur-sm fixed inset-0 items-center text-center justify-center bg-opacity-30 z-50 "
         modalTitle="Editar Imagen"
       >
         <Upload
@@ -98,7 +99,7 @@ const ImageInput: React.FC<ImageInputProps> = ({ setImages, clearImages, default
           onRemove={onRemove}
           itemRender={(originNode, file) => (
             <div className="relative hover:scale-105 duration-300">
-              <div className="overflow-hidden rounded-lg shadow-md border-[1px] border-dashed border-dark">
+              <div className="flex w-full justify-center rounded-[7px] bg-primary p-[13px] font-medium text-white hover:bg-opacity-90">
                 {originNode}
               </div>
             </div>

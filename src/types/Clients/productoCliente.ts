@@ -2,7 +2,7 @@ export type ProductoCliente = {
   id_product: number;
   name: string;
   total_quantity: number;
-  price: string;
+  price: number;
   description: string;
   id_category: number;
   category : string;

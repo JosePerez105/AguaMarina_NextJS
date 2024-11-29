@@ -3,6 +3,7 @@ import { ApexOptions } from "apexcharts";
 import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 import { fetchCategories } from "@/api/fetchs/get_categorias";
+import Link from "next/link";
 
 const ChartThree: React.FC = () => {
   const [series, setSeries] = useState<number[]>([]);
@@ -11,8 +12,9 @@ const ChartThree: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       const data = await fetchCategories();
-      const quantities = data.map((categoria: any) => categoria.quantity);
-      const names = data.map((categoria: any) => categoria.name);
+      const filteredData = data.filter((categoria: any) => categoria.quantity > 0);
+      const quantities = filteredData.map((categoria: any) => categoria.quantity);
+      const names = filteredData.map((categoria: any) => categoria.name);
 
       setSeries(quantities);
       setLabels(names);
@@ -85,6 +87,13 @@ const ChartThree: React.FC = () => {
           <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
             Productos por Categoria
           </h4>
+          <Link
+                href="admin/categorias"
+                className="flex w-full items-center gap-2.5 rounded-[7px] p-2.5 text-sm font-medium text-dark-4 duration-300 ease-in-out hover:bg-gray-2 hover:text-dark dark:text-dark-6 dark:hover:bg-dark-3 dark:hover:text-white lg:text-base"
+              >
+                <svg width="24px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M5 10H7C9 10 10 9 10 7V5C10 3 9 2 7 2H5C3 2 2 3 2 5V7C2 9 3 10 5 10Z" stroke="#292D32" strokeWidth="1.5" /* stroke-miterlimit="10" */ strokeLinecap="round" strokeLinejoin="round"></path> <path d="M17 10H19C21 10 22 9 22 7V5C22 3 21 2 19 2H17C15 2 14 3 14 5V7C14 9 15 10 17 10Z" stroke="#292D32" strokeWidth="1.5" /* stroke-miterlimit="10" */ strokeLinecap="round" strokeLinejoin="round"></path> <path d="M17 22H19C21 22 22 21 22 19V17C22 15 21 14 19 14H17C15 14 14 15 14 17V19C14 21 15 22 17 22Z" stroke="#292D32" strokeWidth="1.5" /* stroke-miterlimit="10" */ strokeLinecap="round" strokeLinejoin="round"></path> <path d="M5 22H7C9 22 10 21 10 19V17C10 15 9 14 7 14H5C3 14 2 15 2 17V19C2 21 3 22 5 22Z" stroke="#292D32" strokeWidth="1.5" /* stroke-miterlimit="10" */ strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
+                Ver Categorias
+              </Link>
         </div>
       </div>
 

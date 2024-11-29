@@ -31,6 +31,10 @@ const dataProductos = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Producto | null>(null);
+
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -61,6 +65,19 @@ const dataProductos = () => {
     setCurrentPage(1); 
   };
 
+
+  // Función para abrir la modal
+  const handleOpenModal = (producto: Product) => {
+    setSelectedProduct(producto);
+    setOpenModal(true);
+  };
+
+  // Función para cerrar la modal
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setSelectedProduct(null);
+  };
+
   const paginatedData = data.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
   const totalPages = Math.ceil(data.length / rowsPerPage);
 
@@ -69,7 +86,7 @@ const dataProductos = () => {
       
 
       {/* Tabla */}
-      <Table className="min-w-full">
+      <Table className="min-w-full text-sm">
         <TableHead>
           <TableRow>
             <TableCell className="px-2 pb-3.5 font-medium text-sm dark:text-dark-6">
@@ -99,27 +116,42 @@ const dataProductos = () => {
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={1000}>
+              <TableCell colSpan={7} align="center">
                 <Loader />
+              </TableCell>
+            </TableRow>
+          ) : paginatedData.length === 0 ? ( // Verifica si no hay productos
+            <TableRow>
+              <TableCell colSpan={7} align="center">
+                <Typography variant="h6" className="py-6 text-gray-500">
+                  No hay productos disponibles.
+                </Typography>
               </TableCell>
             </TableRow>
           ) : (
             paginatedData.map((producto, key) => (
-              <TableRow key={producto.id_product} className={`${key !== data.length - 1 ? "border-b border-stroke dark:border-dark-3" : ""}`}>
-                
+              <TableRow
+                key={producto.id_product}
+                className={`${
+                  key !== data.length - 1 ? "border-b border-stroke dark:border-dark-3" : ""
+                }`}
+              >
                 {/* Imagen y Nombre */}
                 <TableCell className="flex items-center gap-3.5 px-2 py-4 flex-col">
-                  <div className="flex items-center gap-3.5 flex-row">
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 90, minHeight: 90 }} className="bg-primary/[.2] dark:bg-white/10 p-2 rounded-2xl hover:scale-125 duration-300 cursor-pointer">
+                  <div className="flex items-center gap-3.5 flex-row text-center">
+                    <div
+                      style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 90, minHeight: 90 }}
+                      className="bg-primary/[.2] dark:bg-white/10 p-2 rounded-2xl hover:scale-125 duration-300 cursor-pointer"
+                    >
                       <Image
-                        src={producto.images[0] || 'https://via.placeholder.com/60'}
+                        src={producto.images[0] || "https://via.placeholder.com/60"}
                         alt="producto"
                         width={90}
                         height={90}
                         className="flex-shrink-0 rounded-[10px]"
                       />
                     </div>
-                    <p className="hidden sm:block font-medium font-estandar text-2xl text-dark dark:text-dark-6">
+                    <p className="hidden sm:block font-medium font-estandar text-xl text-dark dark:text-dark-6">
                       {producto.name}
                     </p>
                   </div>
@@ -137,7 +169,10 @@ const dataProductos = () => {
 
                 {/* Disponibilidad */}
                 <TableCell align="center" className="px-2 dark:text-dark-6">
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',  height: 110 }} className="bg-primary/[.2] dark:bg-white/10 p-2 rounded-2xl hover:scale-105 duration-300 mb-4">
+                  <div
+                    style={{ display: "flex", flexDirection: "column", alignItems: "center", height: 110 }}
+                    className="bg-primary/[.2] dark:bg-white/10 p-2 rounded-2xl hover:scale-105 duration-300 mb-4"
+                  >
                     <Progress
                       size={150}
                       type="dashboard"
@@ -148,7 +183,11 @@ const dataProductos = () => {
                       strokeColor={"#00ff"}
                       strokeLinecap="round"
                     />
-                    <Typography className="flex flex-row" variant="h6" style={{ marginTop: '-45px', whiteSpace: 'nowrap', }}>
+                    <Typography
+                      className="flex flex-row"
+                      variant="h6"
+                      style={{ marginTop: "-45px", whiteSpace: "nowrap" }}
+                    >
                       {`${producto.disponibility} / ${producto.total_quantity}`}
                     </Typography>
                   </div>
@@ -156,17 +195,17 @@ const dataProductos = () => {
 
                 {/* Descripción */}
                 <TableCell align="center" className="hidden sm:table-cell px-2 py-4">
-                  <textarea 
+                  <textarea
                     className="bg-primary/[.2] text-dark dark:bg-white/10 dark:text-white text-lg font-estandar"
-                    value={producto.description} 
-                    readOnly 
+                    value={producto.description}
+                    readOnly
                     rows={4}
                     style={{
-                      width: 300,
+                      width: 250,
                       height: 150,
                       minHeight: 50,
-                      resize: 'vertical',
-                      fontFamily: 'inherit',
+                      resize: "vertical",
+                      fontFamily: "inherit",
                       borderRadius: "10px",
                       padding: "10px",
                     }}
@@ -182,16 +221,16 @@ const dataProductos = () => {
 
                 {/* Acciones */}
                 <TableCell align="center" className="hidden sm:table-cell px-2 py-4">
-                  <div className="gap-4 flex flex-col">   
+                  <div className="gap-4 flex flex-col">
                     <ButtonDefault
                       label="Editar"
-                      link="/admin"
-                      customClasses="text-xl font-semibold border border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-white rounded-[5px] px-10 py-3.5 lg:px-8 xl:px-10"
+                      onClick={() => handleOpenModal(producto)}
+                      customClasses="text-sm font-semibold border border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-white rounded-[5px] px-10 py-3.5 lg:px-8 xl:px-10"
                     />
                     <ButtonDefault
                       label="Eliminar"
                       link="/admin"
-                      customClasses="text-xl font-semibold border border-red-500 hover:bg-red-500 hover:text-white text-red-500 rounded-[5px] px-10 py-3.5 lg:px-8 xl:px-10"
+                      customClasses="text-sm font-semibold border border-red-500 hover:bg-red-500 hover:text-white text-red-500 rounded-[3px] px-6 py-2.5 lg:px-8 xl:px-10"
                     />
                   </div>
                 </TableCell>
@@ -199,6 +238,7 @@ const dataProductos = () => {
             ))
           )}
         </TableBody>
+
       </Table>
 
       {/* Controles de Paginación */}
@@ -232,6 +272,12 @@ const dataProductos = () => {
           />
         </label>
       </div>
+      {/* Modal para editar producto */}
+      {openModal && (
+        <BasicModal tituloBtn="Editar producto" tituloModal="Editar producto" handleClose={handleCloseModal}>
+          <EditarProducto productId={selectedProduct?.id_product} handleClose={handleCloseModal} />
+        </BasicModal>
+      )}
     </div>
   );
 };

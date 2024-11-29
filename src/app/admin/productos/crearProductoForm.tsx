@@ -223,7 +223,7 @@ const crearProducto: React.FC<{ handleClose: () => void }> = ({ handleClose }) =
                             label="Nombre del producto"
                             type="text"
                             placeholder="Ingresa el nombre completo del producto"
-                            customClasses="w-full"
+                            customClasses="mb-3 w-full"
                             required
                             value={formData.name}
                             onChange={handleChange}
@@ -234,7 +234,7 @@ const crearProducto: React.FC<{ handleClose: () => void }> = ({ handleClose }) =
                             name="id_category"
                             label="Categoría"
                             placeholder="Selecciona una categoría"
-                            customClasses="mb-3 w-full xl:w-1/2"
+                            customClasses="mb-3 w-full "
                             required
                             value={formData.id_category}
                             opciones={opcionesCategorias}
@@ -243,21 +243,21 @@ const crearProducto: React.FC<{ handleClose: () => void }> = ({ handleClose }) =
                     </div>
                     
                     
-                    <div className="mb-3 flex gap-4.5 flex-row">
+                    <div className="mb-3 flex flex-col gap-4.5 xl:flex-row">
                         <InputGroup
                             id="total_quantity"
                             name="total_quantity"
                             label="Cantidad inicial"
                             type="number"
                             placeholder="Ingresa la cantidad inicial del producto"
-                            customClasses="mb-3 w-full"
+                            customClasses="mb-2 w-full"
                             required
                             value={formData.total_quantity}
                             onChange={handleChange}
                         />
                         
                         <DatePickerOne  
-                            customClasses="mb-3 w-full lg:w-1/2"
+                            customClasses="mb-3 w-full "
                             id="purchase_date"
                             name="purchase_date"
                             label="Fecha de Compra"
@@ -306,8 +306,8 @@ const crearProducto: React.FC<{ handleClose: () => void }> = ({ handleClose }) =
                             <textarea
                                 id="description"
                                 name="description"
-                                rows={5}
-                                maxLength={1500}
+                                rows={4}
+                                maxLength={300}
                                 style={{
                                     overflow: "auto",
                                     scrollbarWidth: "none",
@@ -315,11 +315,11 @@ const crearProducto: React.FC<{ handleClose: () => void }> = ({ handleClose }) =
                                 placeholder="Escribe la descripción del producto"
                                 value={formData.description}
                                 onChange={handleChange}
-                                className="w-full resize-none pb-6 rounded-[7px] border-[1.5px] border-stroke bg-transparent px-5 py-3 text-dark outline-none transition placeholder:text-dark-6 focus:border-primary active:border-primary disabled:cursor-default dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
+                                className="w-full resize-none pb-6 rounded-[5px] border-[1px] border-stroke bg-transparent px-3 py-2 text-dark outline-none transition placeholder:text-dark-6 focus:border-primary active:border-primary disabled:cursor-default dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:focus:border-primary"
                                 required
                             ></textarea>
                             <div className="absolute bottom-2 right-5 text-lg text-dark-6 dark:text-dark-4">
-                                {formData.description.length} / 1500
+                                {formData.description.length} / 300
                             </div>
                         </div>
                         </div>

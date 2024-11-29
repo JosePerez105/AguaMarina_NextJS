@@ -24,12 +24,11 @@ const Faq = () => {
               question="¿Cómo puedo hacer que mi reserva sea confirmada?"
               answer="Luego de cotizar tus productos, si no estás registrado, deberás proporcionar tu información personal. Es muy importante que realices el pago requerido y adjuntes el comprobante de pago. Una vez recibamos el comprobante, tu reserva será confirmada y podrás disfrutar de nuestros productos para tu evento."
             />
-
           </div>
 
           <div className="w-full px-4 lg:w-1/2">
             <SingleFaq
-              question="¿Qué pasa si malogro algún producto?"
+              question="¿Qué pasa si daño algún producto?"
               answer="En caso de que un producto se malogre o se dañe durante tu evento, te pedimos que nos informes de inmediato. Dependiendo del tipo de daño, se aplicará una tarifa adicional para cubrir los costos de reparación o reposición del producto. Es importante revisar las condiciones de alquiler para conocer las responsabilidades y cuidados de los productos."
             />
             <SingleFaq

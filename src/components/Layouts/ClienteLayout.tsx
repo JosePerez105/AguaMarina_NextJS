@@ -9,6 +9,7 @@ import "@/css/Clientes/index.css";
 import "@/css/Clientes/prism-vsc-dark-plus.css";
 import { useEffect, useState } from "react";
 import PreLoader from "@/components/Clients/Common/PreLoader";
+import LoaderFullScreen from "../Loaders/LoaderFullScreen";
 
   export default function ClienteLayout({
   children,
@@ -17,35 +18,30 @@ import PreLoader from "@/components/Clients/Common/PreLoader";
 }) {
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    setTimeout(() => setLoading(false), 1000);
-  }, []);
+  // useEffect(() => {
+  //   setTimeout(() => setLoading(false), 1000);
+  // }, []);
 
   return (
     <html suppressHydrationWarning={true} /* className="!scroll-smooth" */ lang="en">
       <head />
 
       <body>
-        {loading ? (
-          <PreLoader />
-        ) : (
-          // <SessionProvider>
             <ThemeProvider
               attribute="class"
               enableSystem={false}
               defaultTheme="light"
             >
                 <div>
-                  <Header />
+                  <Header setLoadingLayout={setLoading}/>
                   {children}
                   <Footer />
                   <ScrollToTop />
+                  {loading ? (
+                    <LoaderFullScreen />
+                  ): <></>}
                 </div>
-                  
-                
             </ThemeProvider>
-          // </SessionProvider>
-        )}
       </body>
     </html>
   );

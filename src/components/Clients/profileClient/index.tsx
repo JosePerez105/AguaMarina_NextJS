@@ -15,6 +15,7 @@ import { logOut } from "@/utils/validationsTokens";
 import { fetchUserById } from "@/api/fetchs/get_usuarios";
 import ListaDir from "@/components/Lista/ListaDir";
 
+
 interface ClientData {
   id_user: string;
   names: string;
@@ -229,7 +230,7 @@ const ProfileClient: React.FC = () => {
                   onChange={handleChange}
                   required
                   InputProps={{
-                    style: { color: "white" },}}
+                    style: { color: "black" },}}
                   color="info"
                 />
               </Grid>
@@ -243,7 +244,7 @@ const ProfileClient: React.FC = () => {
                   onChange={handleChange}
                   required
                   InputProps={{
-                    style: { color: "white" },}}
+                    style: { color: "black" },}}
                   color="info"
                 />
               </Grid>
@@ -258,7 +259,7 @@ const ProfileClient: React.FC = () => {
                   required
                   disabled
                   InputProps={{
-                    style: { color: "white" },}}
+                    style: { color: "black" },}}
                   color="info"
                 />
               </Grid>
@@ -273,7 +274,7 @@ const ProfileClient: React.FC = () => {
                   required
                   disabled
                   InputProps={{
-                    style: { color: "white" },}}
+                    style: { color: "black" },}}
                   color="info"
                 />
               </Grid>
@@ -287,7 +288,7 @@ const ProfileClient: React.FC = () => {
                   onChange={handleChange}
                   required
                   InputProps={{
-                    style: { color: "white" },}}
+                    style: { color: "black" },}}
                   color="info"
                 />
               </Grid>
@@ -331,7 +332,7 @@ const ProfileClient: React.FC = () => {
         <Typography variant="h4" align="center" gutterBottom>
           Mis Direcciones
         </Typography>
-        <ListaDir />
+        <ListaDir id_user={clientData.id_user}/>
       </Card>
       )
     }

@@ -1,15 +1,13 @@
 "use client"
 import Image from "next/image";
-import { Table, TableBody, TableCell, TableHead, TableRow, Typography, Chip } from "@mui/material";
+import { Table, TableBody, TableCell, TableHead, TableRow, Chip, TablePagination, Typography } from "@mui/material";
+import { Pagination } from "antd";
 import { fetchUsers } from "@/api/fetchs/get_usuarios";
 import ButtonDefault from "@/components/Buttons/ButtonDefault";
 import SwitcherThree from "@/components/FormElements/Switchers/SwitcherThree";
 import { Usuario } from "@/types/admin/Usuario";
 import { useState, useEffect } from "react";
 import Loader from "@/components/common/Loader";
-
-
-
 
 const onChangeDatePicker = () => {
   console.log("Cambiado")
@@ -18,6 +16,8 @@ const onChangeDatePicker = () => {
 const dataUsuarios = () => {
   const [data, setData] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
   useEffect(() => {
     const loadData = async () => {
@@ -34,6 +34,15 @@ const dataUsuarios = () => {
     loadData();
   }, []);
 
+
+  const handlePageChange = (page: number, size: number) => {
+    setCurrentPage(page);
+    setPageSize(size);
+  };
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const currentData = data.slice(startIndex, startIndex + pageSize);
+
   const totalUsuarios = data.length;
 
   return (
@@ -41,7 +50,7 @@ const dataUsuarios = () => {
       <Table className="min-w-full">
         <TableHead>
           <TableRow>
-            <TableCell className="px-2 pb-3.5 font-medium  text-sm dark:text-dark-6">
+            <TableCell align ="center" className="px-2 pb-3.5 font-medium dark:text-dark-6 table-small-font">
               <h1 className="text-sm font-semibold  xsm:text-base">
                 Nombre completo
               </h1>
@@ -68,18 +77,27 @@ const dataUsuarios = () => {
         </TableHead>
 
         <TableBody>
-        {loading ? (
-          <TableRow>
-            <TableCell colSpan={1000}>
-              <Loader />
-            </TableCell>
-          </TableRow>) : 
-          data.map((usuario, key) => (
-            <TableRow
-              key={usuario.id_user}
-              className={key !== data.length - 1 ? "border-b border-stroke dark:border-dark-3" : ""}
-            >
-              {/* Nombres */}
+          {loading ? (
+            <TableRow>
+              <TableCell colSpan={7} align="center">
+                <Loader />
+              </TableCell>
+            </TableRow>
+          ) : data.length === 0 ? ( // Verifica si no hay usuarios
+            <TableRow>
+              <TableCell colSpan={7} align="center">
+                <Typography variant="h6" className="py-6 text-gray-500">
+                  No hay usuarios disponibles.
+                </Typography>
+              </TableCell>
+            </TableRow>
+          ) : (
+            currentData.map((usuario, key) => (
+              <TableRow
+                key={usuario.id_user}
+                className={key !== data.length - 1 ? "border-b border-stroke dark:border-dark-3" : ""}
+              >
+                {/* Nombres */}
               <TableCell className="flex items-center gap-3.5 px-2 py-4 flex-col">
                 <div className="flex items-center gap-3.5 flex-row">
                   {/* <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 90, minHeight: 90 }} className="bg-primary/[.2] dark:bg-white/10 p-2 rounded-2xl hover:scale-125 duration-300 cursor-pointer">
@@ -151,10 +169,25 @@ const dataUsuarios = () => {
                   />
                 </div>
               </TableCell>
-            </TableRow>
-          ))}
+              </TableRow>
+            ))
+          )}
         </TableBody>
+
       </Table>
+      {/* Componente de paginación */}
+      <div className="flex justify-center mt-4">
+        <Pagination
+          showQuickJumper
+          current={currentPage}
+          pageSize={pageSize}
+          total={500}
+          onChange={handlePageChange}
+          disabled={data.length === 0} // Deshabilitar si no hay datos
+          showSizeChanger
+          onShowSizeChange={handlePageChange}
+        />
+      </div>
     </div>
   );
 };

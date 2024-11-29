@@ -1,8 +1,11 @@
 import ECommerce from "@/components/Dashboard/E-commerce";
+
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLaout";
 import React from "react";
 import { NextUIProvider } from '@nextui-org/react';
+import LoaderFullScreen from "@/components/Loaders/LoaderFullScreen";
+import LoaderBasic from "@/components/Loaders/LoaderBasic";
 
 export const metadata: Metadata = {
   title:
@@ -12,12 +15,9 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <>
-    <NextUIProvider>
-      {/* <DefaultLayout> */}
+    <div>
         <ECommerce />
-      {/* </DefaultLayout> */}
-    </NextUIProvider>
-    </>
+        <LoaderBasic />
+    </div>
   );
 }

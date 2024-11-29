@@ -1,4 +1,4 @@
-import type { Direccion } from "@/types/Clients/direccion";
+import type { Direccion } from "@/types/admin/Direccion";
 
 export const fetchProducts = async (): Promise<Direccion[]> => {
     try {
@@ -17,7 +17,7 @@ export const fetchProducts = async (): Promise<Direccion[]> => {
       const data = await response.json();
       return data.body;
     } catch (error) {
-      console.error("Error obteniendo los productos:", error);
+      console.error("Error obteniendo las direcciones:", error);
       return [];
     }
   };
@@ -35,11 +35,11 @@ export const fetchAddressesByUser = async (id: string | number): Promise<Direcci
       if (!response.ok) {
         throw new Error(`Error: ${response.status} - ${response.statusText}`);
       }
-
+      
       const data = await response.json();
       return data.body;
     } catch (error) {
-      console.error("Error obteniendo als direcciones de usuario:", error);
+      console.error("Error obteniendo las direcciones de usuario:", error);
       return [];
     }
   };

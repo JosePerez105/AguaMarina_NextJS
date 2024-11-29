@@ -37,7 +37,7 @@ const TablesPage = async() => {
       <div className="flex flex-row gap-10">
         <CardTable data={<DataCategorias />} /* width={"75%"} *//>
         <ChartThree />
-      </div>7
+      </div>
       {/* </DefaultLayout> */}
     </div>
     

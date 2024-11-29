@@ -121,7 +121,7 @@ const agregarProducto: React.FC<{ handleClose: () => void }> = ({ handleClose })
                             onChange={handleChange}
                         />
                         <DatePickerOne
-                            customClasses="mb-3 w-full lg:w-1/2"
+                            customClasses="mb-3 w-full "
                             id="purchase_date"
                             name="purchase_date"
                             label="Fecha de Compra"
@@ -131,14 +131,14 @@ const agregarProducto: React.FC<{ handleClose: () => void }> = ({ handleClose })
                         />
                     </div>
 
-                    <div className="mb-3 flex gap-4.5 flex-row">
+                    <div className="mb-3 flex flex-col gap-4.5 xl:flex-row">
                         <InputGroup
                             id="total_quantity"
                             name="total_quantity"
                             label="Cantidad de Productos"
                             type="number"
                             placeholder="Ingresa la cantidad de productos de la compra"
-                            customClasses="mb-3 w-full"
+                            customClasses="mb-2 w-full"
                             required
                             value={formData.total_quantity}
                             onChange={handleChange}

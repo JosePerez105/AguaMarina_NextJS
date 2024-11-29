@@ -8,11 +8,12 @@ import { useEffect, useState } from "react";
 import menuData from "./menuData";
 import { checkToken } from "@/api/validations/check_cookie";
 import Carrito from "@/components/Clients/Carrito/Carrito";
-import { UserOutlined } from '@ant-design/icons';
-import { Avatar, Space } from 'antd';
+import DropdownUser from '@/components/Clients/Header/DropdownUser';
+import { Usuario } from "@/types/admin/Usuario";
 
-const Header = () => {
+const Header: React.FC<{setLoadingLayout : any}> = ({setLoadingLayout}) => {
   const [isLogged, setIsLogged] = useState(false);
+  const [dataUser, setDataUser] = useState<Usuario>();
 
   const pathUrl = usePathname();
   // Navbar toggle
@@ -36,10 +37,14 @@ const Header = () => {
 
   useEffect(() => {
     const questLogged = async() => {
-      const {result} = await checkToken();
+      const {result, data} = await checkToken();
+      console.log({data})
       setIsLogged(result);
+      setDataUser(data);
+      setLoadingLayout(false);
     };
     questLogged();
+    
   }, []);
 
   // submenu handler
@@ -172,8 +177,8 @@ const Header = () => {
                             onClick={navbarToggleHandler}
                             scroll={false}
                             href={menuItem.path}
-                            className={`ud-menu-scroll flex py-2 text-base text-dark group-hover:text-indigo-900 dark:text-white dark:group-hover:text-primary lg:inline-flex lg:px-0 lg:py-6 ${
-                              pathUrl === menuItem?.path && "text-primary"
+                            className={`ud-menu-scroll flex py-2 text-base text-dark duration-300 group-hover:text-gray-400 dark:text-white dark:group-hover:text-gray-400 lg:inline-flex lg:px-0 lg:py-6 ${
+                              pathUrl === menuItem?.path && "text-gray-400 dark:text-gray-600"
                             }`}
                           >
                             {menuItem.title}
@@ -208,7 +213,7 @@ const Header = () => {
                           </button>
 
                           <div
-                            className={`submenu relative left-0 top-full w-[250px] rounded-sm bg-white p-4 transition-[top] duration-300 group-hover:opacity-100 dark:bg-dark-2 lg:invisible lg:absolute lg:top-[110%] lg:block lg:opacity-0 lg:shadow-lg lg:group-hover:visible lg:group-hover:top-full ${
+                            className={`submenu relative left-0 top-full w-[250px] rounded-sm p-4 transition-[top] duration-300 group-hover:opacity-100 dark:bg-dark-2 lg:invisible lg:absolute lg:top-[110%] lg:block lg:opacity-0 lg:shadow-lg lg:group-hover:visible lg:group-hover:top-full ${
                               openIndex === index ? "!-left-[25px]" : "hidden"
                             }`}
                           >
@@ -237,7 +242,7 @@ const Header = () => {
                 <button
                   aria-label="theme toggler"
                   onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                  className="flex h-8 w-8 items-center justify-center text-body-color duration-300 dark:text-white px-10" /* No se muestra en modo claro */
+                  className="flex h-8 w-8 items-center justify-center text-body-color duration-300 hover:scale-125 dark:text-white px-10"
                 >
                   <span>
                     <svg
@@ -249,10 +254,10 @@ const Header = () => {
                   </span>
                 </button>
 
-                {isLogged && (
-                  <Link href="/profileClient">
-                    <Avatar size="large" icon={<UserOutlined />} />
-                </Link>
+                {isLogged && dataUser ? (
+                    <DropdownUser dataUser={dataUser}/>
+                ) : (
+                  <></>
                 )}
 
                 {!isLogged && pathUrl !== "/login" && (
