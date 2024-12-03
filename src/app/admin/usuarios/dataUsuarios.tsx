@@ -1,16 +1,16 @@
 "use client"
 import Image from "next/image";
-import { Table, TableBody, TableCell, TableHead, TableRow, Chip, TablePagination, Typography } from "@mui/material";
-import { Pagination } from "antd";
+import { Table, TableBody, TableCell, TableHead, TableRow, Chip, Typography } from "@mui/material";
+import {Input, Pagination } from "antd";
 import { fetchUsers } from "@/api/fetchs/get_usuarios";
 import ButtonDefault from "@/components/Buttons/ButtonDefault";
 import SwitcherThree from "@/components/FormElements/Switchers/SwitcherThree";
 import { Usuario } from "@/types/admin/Usuario";
 import { useState, useEffect } from "react";
-import Loader from "@/components/common/Loader";
+import LoaderBasic from "@/components/Loaders/LoaderBasic";
 
 const onChangeDatePicker = () => {
-  console.log("Cambiado")
+  console.log("Cambiado") 
 }
 
 const dataUsuarios = () => {
@@ -18,11 +18,14 @@ const dataUsuarios = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
+  const [customPageSize, setCustomPageSize] = useState(pageSize);
 
   useEffect(() => {
     const loadData = async () => {
+      setLoading(true);
       try {
         const usuarios = await fetchUsers();
+        console.log(usuarios);
         setData(usuarios);
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -36,14 +39,26 @@ const dataUsuarios = () => {
 
 
   const handlePageChange = (page: number, size: number) => {
-    setCurrentPage(page);
-    setPageSize(size);
+    if (page <= totalPages) {
+      setCurrentPage(page);
+      setPageSize(size);
+    }
+  };
+
+  const handleCustomPageSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newSize = parseInt(e.target.value, 10);
+    if (!isNaN(newSize) && newSize > 0) {
+      setPageSize(newSize);
+      setCurrentPage(1); // Reiniciar a la primera página
+      setCustomPageSize(newSize);
+    }
   };
 
   const startIndex = (currentPage - 1) * pageSize;
   const currentData = data.slice(startIndex, startIndex + pageSize);
 
   const totalUsuarios = data.length;
+  const totalPages = Math.ceil(totalUsuarios / pageSize);
 
   return (
     <div>
@@ -51,27 +66,27 @@ const dataUsuarios = () => {
         <TableHead>
           <TableRow>
             <TableCell align ="center" className="px-2 pb-3.5 font-medium dark:text-dark-6 table-small-font">
-              <h1 className="text-sm font-semibold  xsm:text-base">
+              <h1 className="text-xl font-semibold  xsm:text-base">
                 Nombre completo
               </h1>
             </TableCell>
-            <TableCell align="center" className="px-2 pb-3.5 font-medium  text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold  xsm:text-base">Rol</h1>
+            <TableCell align="center" className="px-2 pb-3.5 font-medium  text-xl dark:text-dark-6">
+              <h1 className="text-xl font-semibold  xsm:text-base">Rol</h1>
             </TableCell>
-            <TableCell align="center" className="px-2 pb-3.5 font-medium  text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold  xsm:text-base">Documento</h1>
+            <TableCell align="center" className="px-2 pb-3.5 font-medium  text-xl dark:text-dark-6">
+              <h1 className="text-xl font-semibold  xsm:text-base">Documento</h1>
             </TableCell>
-            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium  text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold  xsm:text-base">Correo</h1>
+            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium  text-xl dark:text-dark-6">
+              <h1 className="text-xl font-semibold  xsm:text-base">Correo</h1>
             </TableCell>
-            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium  text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold  xsm:text-base">Teléfono</h1>
+            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium  text-xl dark:text-dark-6">
+              <h1 className="text-xl font-semibold  xsm:text-base">Teléfono</h1>
             </TableCell>
-            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium  text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold  xsm:text-base">Estado</h1>
+            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium  text-xl dark:text-dark-6">
+              <h1 className="text-xl font-semibold  xsm:text-base">Estado</h1>
             </TableCell>
-            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium  text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold  xsm:text-base">Acciones</h1>
+            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium  text-xl dark:text-dark-6">
+              <h1 className="text-xl font-semibold  xsm:text-base">Acciones</h1>
             </TableCell>
           </TableRow>
         </TableHead>
@@ -80,7 +95,7 @@ const dataUsuarios = () => {
           {loading ? (
             <TableRow>
               <TableCell colSpan={7} align="center">
-                <Loader />
+                <LoaderBasic />
               </TableCell>
             </TableRow>
           ) : data.length === 0 ? ( // Verifica si no hay usuarios
@@ -98,35 +113,35 @@ const dataUsuarios = () => {
                 className={key !== data.length - 1 ? "border-b border-stroke dark:border-dark-3" : ""}
               >
                 {/* Nombres */}
-              <TableCell className="flex items-center gap-3.5 px-2 py-4 flex-col">
-                <div className="flex items-center gap-3.5 flex-row">
+              <TableCell align="center" className="flex items-center gap-1.5 px-2 py-5 text-xl">
+                <div className="flex items-center gap-1.5">
                   {/* <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 90, minHeight: 90 }} className="bg-primary/[.2] dark:bg-white/10 p-2 rounded-2xl hover:scale-125 duration-300 cursor-pointer">
                      <Image
                       src={usuario.names}
                       alt="usuario"
                       width={90}
-                      height={90}
+                      height={90}*  
                       className="flex-shrink-0 rounded-[10px]"
                     />
                   </div> */}
-                  <p className="hidden sm:block font-medium font-estandar text-2xl text-dark dark:text-dark-6">
+                  <p className="hidden sm:block font-medium font-estandar text-xl text-dark dark:text-dark-6">
                     {usuario.names} {usuario.lastnames}
                   </p>
                 </div>
               </TableCell>
               {/* Categoría */}
               <TableCell align="center" className="px-2 py-4">
-                <p className="font-medium font-estandar text-2xl text-dark dark:text-dark-6">{usuario.rol}</p>
+                <p className="font-medium font-estandar text-xl text-dark dark:text-dark-6">{usuario.rol}</p>
               </TableCell>
 
               {/* Precio */}
               <TableCell align="center" className="px-2 py-4">
-                <p className="font-bold font-estandar text-2xl text-dark dark:text-dark-6">{usuario.dni}</p>
+                <p className="font-bold font-estandar text-xl text-dark dark:text-dark-6">{usuario.dni}</p>
               </TableCell>
 
               {/* Disponibilidad */}
               <TableCell align="center" className="px-2 dark:text-dark-6">
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',  height: 110 }} className="bg-primary/[.2] dark:bg-white/10 p-2 rounded-2xl hover:scale-105 duration-300 mb-4">
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',  height: 110, width: "auto" }} className="bg-primary/[.2] dark:bg-white/10 p-2 rounded-2xl hover:scale-105 duration-300 mb-4">
                 {/* <Progress
                   size={150}
                   type="dashboard"
@@ -140,13 +155,13 @@ const dataUsuarios = () => {
                 <Typography variant="h6" style={{ marginTop: '-45px' }}>
                   {`${usuario.disponibility} / ${usuario.total_quantity}`}
                 </Typography> */}
-                <p className="font-medium font-estandar text-2xl text-dark dark:text-dark-6">{usuario.mail}</p>
+                <p className="font-medium font-estandar text-xl text-dark dark:text-dark-6">{usuario.mail}</p>
               </div>
               </TableCell>
 
               {/* Teléfono */}
               <TableCell align="center" className="hidden sm:table-cell px-2 py-4">
-                <p className="font-medium font-estandar text-2xl text-dark dark:text-dark-6">{usuario.phone_number}</p>
+                <p className="font-medium font-estandar text-xl text-dark dark:text-dark-6">{usuario.phone_number}</p>
               </TableCell>
 
               {/* Estado */}
@@ -176,16 +191,26 @@ const dataUsuarios = () => {
 
       </Table>
       {/* Componente de paginación */}
-      <div className="flex justify-center mt-4">
+      <div className="flex justify-center mt-4 ">
         <Pagination
           showQuickJumper
           current={currentPage}
           pageSize={pageSize}
-          total={500}
+          total={50}
           onChange={handlePageChange}
-          disabled={data.length === 0} // Deshabilitar si no hay datos
-          showSizeChanger
+          disabled={data.length === 0 || totalPages === 1} // Deshabilitar si no hay datos
+          showSizeChanger={false}
           onShowSizeChange={handlePageChange}
+          className="text-white dark:text-dark-6"
+        />
+        <Input
+          type="number"
+          min={0}
+          max={totalPages}
+          placeholder="Registros por página"
+          value={customPageSize}
+          onChange={handleCustomPageSizeChange}
+          className="ml-4 w-25"
         />
       </div>
     </div>

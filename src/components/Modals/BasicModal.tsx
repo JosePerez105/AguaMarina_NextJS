@@ -67,8 +67,8 @@ const BasicModal: React.FC<{children?: any, tituloBtn?: string, tituloModal?: st
                   </div>
                 </div>
               </div>
-              {/* {children} */}
-              {React.cloneElement(children, { handleClose })}
+              {children}
+              {/* {React.cloneElement(children, { handleClose })} */}
             </Box>
         </Fade>
       </Modal>

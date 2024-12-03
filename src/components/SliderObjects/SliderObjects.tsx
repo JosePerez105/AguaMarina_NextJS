@@ -8,10 +8,11 @@ import { IconButton, Dialog, DialogContent } from "@mui/material";
 
 interface SliderObjectsProps {
     urls: string[];
-    id_product: string;
+    id_product?: string | number;
+    size?: any;
 }
 
-const SliderObjects: React.FC<SliderObjectsProps> = ({ urls, id_product }) => {
+const SliderObjects: React.FC<SliderObjectsProps> = ({ urls, id_product, size=120 }) => {
     const [open, setOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState<string>("");
     const sliderRef = useRef<Slider | null>(null);
@@ -60,8 +61,8 @@ const SliderObjects: React.FC<SliderObjectsProps> = ({ urls, id_product }) => {
                                     src={url}
                                     onClick={() => handleClickImage(url)}
                                     style={{
-                                        width: 120,
-                                        height: 120,
+                                        width: size,
+                                        height: size,
                                         objectFit: 'contain',
                                         backgroundColor: "#c3c3c3",
                                         borderRadius: "10%",

@@ -8,6 +8,8 @@ import "@/css/style.css";
 import React, { useState, ReactNode, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
+import { checkToken } from "@/api/validations/check_cookie";
+import LoaderFullScreen from "@/components/Loaders/LoaderFullScreen";
 
 export default function DefaultLayout({
   children,
@@ -15,14 +17,16 @@ export default function DefaultLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [loadingLayout, setLoadingLayout] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(true);
+  // const [isLogged, setIsLogged] = useState(false);
 
-  useEffect(() => {
-    const render = async() => {
-      setLoadingLayout(false);
-    };
-    render();
-  }, []);
+  // useEffect(() => {
+  //   const render = async() => {
+  //     setLoadingLayout(false);
+  //   };
+  //   render();
+  // }, []);
+
 
   return (
     <>
@@ -35,7 +39,7 @@ export default function DefaultLayout({
         {/* <!-- ===== Content Area STAR ===== --> */}
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
           {/* <!-- ===== Header Star ===== --> */}
-          <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+          <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} setLoadingLayout={setLoading} />
           {/* <!-- ===== Header End ===== --> */}
 
           {/* <!-- ===== Main Content Star ===== --> */}
@@ -47,6 +51,9 @@ export default function DefaultLayout({
           {/* <!-- ===== Main Content End ===== --> */}
         </div>
         {/* <!-- ===== Content Area End ===== --> */}
+        {loading ? (
+          <LoaderFullScreen />
+        ): <></>}
       </div>
       {/* <!-- ===== Page Wrapper End ===== --> */}
     </>

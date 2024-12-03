@@ -28,7 +28,7 @@ const SlideCard: React.FC<SlideCardProps> = ({
   return (
     <div
       className={`relative duration-300 ${
-        isHovered ? "w-full md:w-[300px]" : "w-[400px] md:w-[200px]"
+        isHovered ? "w-full md:w-[350px]" : "w-64 md:w-64"
       }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -86,12 +86,6 @@ const SlideCard: React.FC<SlideCardProps> = ({
             isHovered ? "block" : "hidden"
           }`}
         >
-          <div>
-            <span className="block mb-2 font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">
-              Filtrar por Fecha
-            </span>
-            <Fecha onDateChange={onDateChange} />
-          </div>
           <div>
             <span className="block mb-2 font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">
               Filtrar por Nombre o Descripción

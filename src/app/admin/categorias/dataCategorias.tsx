@@ -4,7 +4,7 @@ import { fetchCategories } from "@/api/fetchs/get_categorias";
 import ButtonDefault from "@/components/Buttons/ButtonDefault";
 import { Categoria } from "@/types/admin/Categoria";
 import { useState, useEffect } from "react";
-import Loader from "@/components/common/Loader";
+import LoaderBasic from "@/components/Loaders/LoaderBasic";
 
 const dataCategorias = () => {
   const [data, setData] = useState<Categoria[]>([]);
@@ -53,7 +53,7 @@ const dataCategorias = () => {
           {loading ? (
             <TableRow>
               <TableCell colSpan={1000}>
-                <Loader />
+                <LoaderBasic />
               </TableCell>
             </TableRow>) : 
             data.map((categoria, key) => (

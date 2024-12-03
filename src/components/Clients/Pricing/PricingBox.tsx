@@ -1,9 +1,94 @@
 import Image from "next/image";
 import React, { useState } from "react";
 import { ProductoCliente } from "@/types/Clients/productoCliente";
-import { InputNumber, Modal } from "antd";
+import { InputNumber } from "antd";
 import { useCart } from "@/context/CartContext";
 import toast, { Toaster } from "react-hot-toast";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import Modal from "@mui/material/Modal";
+import SliderObjects from "@/components/SliderObjects/SliderObjects";
+
+const modalStyle = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "80%",
+  height: "80%",
+  maxWidth: "1000px",
+  bgcolor: "#1F2A37",
+  color: "white",
+  borderRadius: "10px",
+  boxShadow: 24,
+  padding: "20px",
+  display: "flex",
+  flexDirection: "column",
+  transition: "transform 0.3s ease-in-out",
+  position: "relative", // Necesario para que los elementos con "position: absolute" se posicionen bien
+};
+
+const modalContentStyle = {
+  display: "flex", // Usamos flexbox para alinear los elementos en fila
+  flexDirection: "row", // Colocamos los elementos en fila (imagen a la izquierda, texto a la derecha)
+  gap: "20px", // Espacio entre la imagen y el texto
+  flexGrow: 1, // Hace que el contenido se expanda para llenar el espacio disponible
+  overflow: "auto", // Habilita desplazamiento si el contenido excede el tamaño
+};
+
+const imageStyle = {
+  width: "100%", // Ancho flexible para que se ajuste al contenedor
+  height: "auto", // Mantener la proporción de la imagen
+  objectFit: "cover", // Mantener el aspecto de la imagen
+  borderRadius: "10px", // Bordes redondeados para la imagen
+  aspectRatio: "1 / 1", // Mantener relación de aspecto cuadrada si la imagen es cuadrada
+};
+
+const textStyle = {
+  fontSize: "1.2rem", // Aumentar el tamaño del texto
+  lineHeight: "1.6", // Espaciado entre líneas
+  overflow: "hidden", // Asegurarse de que la descripción no se desborde
+  wordWrap: "break-word", // Permitir que el texto se divida si es largo
+  wordBreak: "break-word", // Romper el texto largo si es necesario
+  marginBottom: "4rem",
+};
+
+const buttonContainerStyle = {
+  fontSize: "2rem", // Aumentar el tamaño del texto
+  display: "flex", // Usamos flexbox
+  flexDirection: "column", // Colocamos los elementos en columna
+  justifyContent: "flex-end", // Alineamos el contenido a la derecha
+  gap: "10px", // Espacio entre el input y el botón
+  marginTop: "1rem", // Ajustamos la distancia desde la parte superior
+  alignItems: "center", // Alineamos el contenido verticalmente
+};
+
+const priceAndAvailabilityStyle = {
+  position: "absolute", // Para moverlo fuera del flujo normal y ubicarlo en la parte superior
+  top: "20px", // Distancia desde la parte superior de la modal
+  right: "20px", // Distancia desde la parte derecha de la modal
+  display: "flex", // Flexbox para alinear el precio y la disponibilidad
+  flexDirection: "column", // Colocamos los elementos en columna
+  gap: "10px", // Espacio entre precio y disponibilidad
+  alignItems: "flex-start", // Alineamos el contenido a la derecha
+};
+
+const modalImageContainerStyle = {
+  flexShrink: 0, // Evita que la imagen se reduzca
+  width: "auto", // Ancho automático para la imagen
+  justifyContent: "flex-start", // Asegura que la imagen esté alineada a la izquierda
+  maxWidth: "100%",  // Limitar el tamaño máximo al 100% del contenedor
+  maxHeight: "100%", // Limitar la altura máxima al 100% del contenedor
+  objectFit: "cover",  // Mantener la proporción sin deformar
+};
+
+const modalTextContainerStyle = {
+  flexGrow: 1, // El contenido del texto debe expandirse para llenar el espacio
+  maxHeight: "calc(100% - 50px)", // Asegura que la descripción no se expanda más allá de la altura definida
+  overflow: "auto", // Agrega desplazamiento si el contenido es largo
+  paddingRight: "10px", // Espaciado derecho para que no se corte el texto
+};
 
 const truncateText = (text: string, limit: number = 10) => {
   if (text.length <= limit) return text;
@@ -67,7 +152,7 @@ const PricingBox: React.FC<{ products: ProductoCliente[] }> = ({
                   alt="producto"
                   width={150}
                   height={150}
-                  className="max-w-[120px] rounded-[10px] object-cover"
+                  className="w-[120px] lg:w-[150px] rounded-[10px] object-cover"
                 />
               </div>
 
@@ -122,117 +207,99 @@ const PricingBox: React.FC<{ products: ProductoCliente[] }> = ({
                     onChange={(value) =>
                       handleQuantityChange(product.id_product, value || 1)
                     }
-                    className="w-32 rounded px-2 py-1 text-center"
-                    onClick={(e) => e.stopPropagation()}
+                    className="!w-[70px] !text-lg !rounded-[8px] !border-[#ddd]"
                   />
-                  {/* Botón */}
-                  <button
-                    className="inline-block rounded-md bg-primary px-4 py-2 text-center text-sm font-medium text-white transition duration-300 hover:bg-primary/90"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddToCart(product);
+                  <Button
+                    style={{
+                      fontSize: "1.2rem",
+                      width: "100%",
                     }}
+                    onClick={() => handleAddToCart(product)}
+                    className="!w-[100%] !rounded-[8px]"
+                    variant="contained"
+                    color="primary"
                   >
-                    Añadir al Carrito
-                  </button>
+                    Añadir al carrito
+                  </Button>
                 </div>
               </div>
             </div>
           ))}
-          <Toaster position="bottom-right" />
         </div>
       </div>
 
       {/* Modal */}
-      <Modal
-        open={isModalOpen}
-        onCancel={handleCloseModal}
-        footer={null}
-        width="auto" // Ajusta automáticamente al contenido interno
-        className="dark:bg-dark-2 dark:text-white rounded-lg"
-        style={{
-          maxWidth: "750px", // Ajusta el tamaño máximo según tus necesidades
-          padding: "0px", // Controla el espacio interno
-        }}
-      >
-        {selectedProduct && (
-          <div className="flex flex-col lg:flex-row lg:gap-6">
-            {/* Contenedor de la imagen */}
-            <div className="mb-4 flex flex-shrink-0 justify-center lg:mb-0 lg:w-1/3">
-              <Image
-                src={
-                  selectedProduct.images[0] || "https://via.placeholder.com/300"
-                }
-                alt={selectedProduct.name}
-                width={200}
-                height={200}
-                className="rounded-[10px] object-cover"
-              />
-            </div>
-
-            {/* Contenedor de los datos */}
-            <div className="text-lg lg:w-2/3">
-              <p>
-                <strong>{selectedProduct.name}</strong>
-              </p>
-              <p className="mb-4"></p>
-              <p>
-                <strong>Descripción</strong>
-              </p>
-              <p
-                className="mb-4"
-                style={{
-                  wordWrap: "break-word", // Asegura que las palabras largas se rompan
-                  wordBreak: "break-word", // Si una palabra es demasiado larga, se corta en el borde
-                  overflowWrap: "break-word", // Asegura que el contenido largo se rompa en líneas más pequeñas si es necesario
-                }}
+      {selectedProduct && (
+        <Modal open={isModalOpen} onClose={handleCloseModal}>
+          <Box sx={modalStyle}>
+            <div style={modalContentStyle}>
+              <div
+                className="mb-4 flex flex-shrink-0 justify-start lg:mb-0 lg:w-1/3"
+                style={modalImageContainerStyle}
               >
-                {selectedProduct.description}
-              </p>
-              <p>
-                <strong>Precio por día</strong>
-              </p>
-              <p className="mb-4">
-                {parseFloat(selectedProduct.price.toString()).toLocaleString(
-                  "en-US",
-                  {
-                    currency: "COP",
-                  },
-                )}
-              </p>
-              <p>
-                <strong>Disponibles</strong>
-              </p>
-              <p className="mb-4">{selectedProduct.disponibility}</p>
-
-              {/* Contenedor del input y el botón */}
-              <div className="mt-4 flex flex-col items-start">
-                {/* Input de cantidad */}
-                <InputNumber
-                  min={1}
-                  max={selectedProduct.disponibility}
-                  value={quantities[selectedProduct.id_product] || 1}
-                  onChange={(value) =>
-                    handleQuantityChange(selectedProduct.id_product, value || 1)
-                  }
-                  className="w-32 rounded px-2 py-1 text-center"
-                  onClick={(e) => e.stopPropagation()}
-                />
-                {/* Botón para añadir al carrito */}
-                <button
-                  className="mt-2 inline-block rounded-md bg-primary px-4 py-2 text-center text-sm font-medium text-white transition duration-300 hover:bg-primary/90"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAddToCart(selectedProduct);
-                  }}
+                <SliderObjects urls={selectedProduct.images} id_product={selectedProduct.id_product} size={400}/>
+              </div>
+              <div
+                className="flex flex-col w-full lg:w-2/3"
+                style={modalTextContainerStyle}
+              >
+                <Typography
+                  variant="h5"
+                  sx={{ marginBottom: "1.5rem" }}
+                  className="font-semibold"
                 >
-                  Añadir al Carrito
-                </button>
+                  {selectedProduct.name}
+                </Typography>
+
+                <Typography variant="body1" sx={textStyle}>
+                  {selectedProduct.description}
+                </Typography>
+
+                <div style={priceAndAvailabilityStyle}>
+                  <Typography variant="h6" sx={{ fontSize: "1.5rem" }}>
+                    Precio:{" "}
+                    <span>
+                      ${parseFloat(selectedProduct.price.toString()).toLocaleString(
+                        "en-US",
+                        {
+                          currency: "COP",
+                        }
+                      )}
+                    </span>
+                  </Typography>
+                  <Typography variant="h6" sx={{ fontSize: "1.5rem" }}>
+                    Disponibilidad: {selectedProduct.disponibility}
+                  </Typography>
+                </div>
+
+                <div style={buttonContainerStyle}>
+                  <InputNumber
+                    min={1}
+                    max={selectedProduct.disponibility}
+                    value={quantities[selectedProduct.id_product] || 1}
+                    onChange={(value) =>
+                      handleQuantityChange(selectedProduct.id_product, value || 1)
+                    }
+                    className="!w-[70px] !text-lg !rounded-[8px] !border-[#ddd]"
+                  />
+                  <Button
+                    style={{
+                      fontSize: "1.2rem",
+                      width: "100%",
+                    }}
+                    onClick={() => handleAddToCart(selectedProduct)}
+                    className="!w-[100%] !rounded-[8px]"
+                    variant="contained"
+                    color="primary"
+                  >
+                    Añadir al carrito
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </Modal>
+          </Box>
+        </Modal>
+      )}
     </>
   );
 };

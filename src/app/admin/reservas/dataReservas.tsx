@@ -1,17 +1,23 @@
 "use client";
-import Image from "next/image";
-import { Table, TableBody, TableCell, TableHead, TableRow, TablePagination, Typography, Chip, Button, TableContainer, Paper, Collapse, Card } from "@mui/material";
-import { fetchReservations } from "@/api/fetchs/get_reservas";
-import { Divider, Progress, Tooltip } from "antd";
-import ButtonDefault from "@/components/Buttons/ButtonDefault";
-import SwitcherThree from "@/components/FormElements/Switchers/SwitcherThree";
-import changeStatus from "@/api/functions/changeStatus_Productos";
-import { useState, useEffect, useCallback } from "react";
-import Loader from "@/components/common/Loader";
+import { Table, TableBody, TableCell, TableHead, TableRow, Button, TableContainer, Paper, Collapse, Card, Typography } from "@mui/material";
+import { fetchReservations, approveReservationById, denyReservationById, finalizeReservationById, annularReservationById} from "@/api/fetchs/get_reservas";
+import { Tooltip, Select } from "antd";
+import RuleRoundedIcon from '@mui/icons-material/RuleRounded';
+import { useState, useEffect, useRef } from "react";
+import LoaderBasic from "@/components/Loaders/LoaderBasic";
 import { Reserva } from "@/types/admin/Reserva";
 import React from "react";
 import CardTable from "@/components/Tables/CardTable";
 import SliderObjects from "@/components/SliderObjects/SliderObjects";
+import Swal from "sweetalert2";
+import SwapVertRoundedIcon from '@mui/icons-material/SwapVertRounded';
+import { Input, Space } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import toast, { Toaster } from "react-hot-toast";
+
+
+const { Option } = Select;
+
 
 function formatCurrency(value: string | number): string {
   const numericValue = typeof value === 'string' ? parseFloat(value) : value;
@@ -20,66 +26,303 @@ function formatCurrency(value: string | number): string {
   }
   return numericValue.toLocaleString('es-CO', {
     style: 'currency',
-    currency: 'COP',
+    currency: 'COP',  
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   });
 }
 
-
-
 interface RowProps {
   row: Reserva;
-  // fetchData: () => Promise<void>;
 }
 
 const Row: React.FC<RowProps> = ({ row }) => {
-  // const [alert, setAlert] = useState<Alert | null>(null);
   const [open, setOpen] = useState(false);
   const [loadingReservationId, setLoadingReservationId] = useState<number | null>(null);
   const [loadingInfo, setLoadingInfo] = useState<string | null>(null);
-
-  const approveReservation = async (res: Reserva) => {
-    // setAlert(null);
-    setLoadingReservationId(res.id_reservation);
-    const id = res.id_reservation;
-    // Lógica para aprobar la reserva
-    // ...
+  const formatDate = (date: string) => {
+    const formattedDate = new Date(date);
+    return formattedDate.toLocaleDateString('es-CO'); 
   };
 
-  const denyReservation = async (res: Reserva) => {
-    setLoadingInfo('deny');
-    // setAlert(null);
-    setLoadingReservationId(res.id_reservation);
-    const id = res.id_reservation;
-    try {
-      const response = await fetch(`https://api-aguamarina-mysql-v2.onrender.com/api/v2/reservations_deny/${id}`);
-      if (response.ok) {
-        // await fetchData();
-        // setAlert({
-        //   Titulo: 'Correcto!!',
-        //   Texto: `Reserva #'${id}' aprobada exitosamente`,
-        //   Type: 'success'
-        // });
-        // setTimeout(() => setAlert(null), 4000);
-      } else {
-        // setAlert({
-        //   Titulo: 'Error',
-        //   Texto: `No se ha podido denegar la Reserva #'${id}'`,
-        //   Type: 'error'
-        // });
-        // setTimeout(() => setAlert(null), 4000);
-      }
-    } catch (err) {
-      console.error('Error:', err);
-      // setAlert({
-      //   Titulo: 'Error',
-      //   Texto: 'Ha ocurrido un error en el Servidor ...',
-      //   Type: 'error'
-      // });
-      // setTimeout(() => setAlert(null), 4000);
-    } finally {
-      setLoadingReservationId(null);
+  const isFinalizable = new Date() > new Date(row.end_date);
+  const isCancelable = new Date() < new Date(row.end_date);
+
+  
+
+  const handleActionClick = async (id_reservation: string | number, event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+
+    const handleButtonClick = async(key : any) => {
+      await handleAction(key)
+    }
+
+    const opciones = {
+      'Aprobar': 'Aprobar',
+      'Denegar': 'Denegar',
+      'Finalizar': 'Finalizar',
+      'Anular': 'Anular'
+    }
+    
+    const { value } = await Swal.fire({
+      icon: "info",
+      iconColor: "#000",
+      color: "#000",
+      title: `¿Qué quieres hacer con la reserva #${id_reservation}?`,
+      html: `
+        <div id="button-container" style="width: 100%; padding: 15px; background-color: transparent; border-radius: 16px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between;">
+          ${Object.entries(opciones)
+            .map(
+              ([key, label]) => `
+                <button 
+                  id="btn-${key}" 
+                  style="flex: 1 1 calc(50% - 10px); padding: 10px 20px; border: none; border-radius: 16px; font-size: 16px; cursor: pointer; transition: background-color 0.3s, color 0.3s, transform 0.5s, opacity 0.2s; background-color: ${
+                    label === "Aprobar"
+                      ? "#28a745"
+                      : label === "Denegar"
+                      ? "#dc3545"
+                      : label === "Finalizar"
+                      ? "#ffc107"
+                      : "#6c757d"
+                  }; color: ${label === "Finalizar" ? "black" : "white"};"
+                >
+                  ${label}
+                </button>
+              `
+            )
+            .join("")}
+        </div>
+      `,
+      showCancelButton: true,
+      cancelButtonText: "Volver",
+      cancelButtonColor: "#000",
+      showConfirmButton: false,
+      didOpen: () => {
+        Object.keys(opciones).forEach((key) => {
+          const button = document.getElementById(`btn-${key}`);
+          button?.addEventListener("click", () => handleButtonClick(key));
+        });
+      },
+      background: "url(/images/grids/bg-morado-bordes.avif) no-repeat center center/cover",
+      customClass: {
+        popup: "rounded-3xl shadow shadow-6",
+        container: "custom-background",
+        cancelButton: "rounded-xl"
+      },
+    });
+  
+    // Si hay una acción seleccionada, la manejamos
+    if (value) {
+      await handleAction(value);
+    }
+  };
+
+  const handleAction = async (action: string) => {
+    let confirmationMessage = '';
+    let result = false;
+
+    switch (action) {
+      case 'Aprobar':
+        confirmationMessage = '¿Estás seguro de que deseas aprobar esta reserva?';
+        result = await Swal.fire({
+          title: 'Confirmación',
+          text: confirmationMessage,
+          iconColor: "#000",
+          color: "#000",
+          icon: 'warning',
+          showCancelButton: true,
+          cancelButtonColor: "#000",
+          confirmButtonColor: "#000",
+          confirmButtonText: 'Aprobar',
+          cancelButtonText: 'Cancelar',
+          reverseButtons: true,
+          background: "url(/images/grids/bg-morado-bordes.avif)",
+          customClass: {
+            popup: "rounded-3xl shadow shadow-6",
+            container: 'custom-background',
+            cancelButton: "rounded-xl",
+            confirmButton: "rounded-xl",
+          },
+        }).then((res) => res.isConfirmed);
+        
+        if (result) {
+            toast.promise(
+              approveReservationById(row.id_reservation),
+               {
+                 loading: 'Aprobando...',
+                 success: <b>Reserva Aprobada!</b>,
+                 error: <b>Error al intentar a la Reserva.</b>,
+               }
+             );
+            // await approveReservationById(row.id_reservation);
+            // toast.success(`Reserva #${row.id_reservation} aprobada correctamente`);
+        }
+        break;
+
+      case 'Denegar':
+
+
+      result = await Swal.fire({
+        title: 'Motivo de denegación',
+        html: `Cuéntale a <span class="font-bold">${row.name_client}</span> el motivo de la denegación:`,
+        iconColor: "#000",
+        color: "#000",
+        icon: 'question',
+        input: 'text', // Agrega un input de texto
+        inputPlaceholder: 'Escribe tu motivo aquí...', // Placeholder para el input
+        showCancelButton: true,
+        cancelButtonColor: "#000",
+        confirmButtonColor: "#000",
+        confirmButtonText: 'Denegar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        background: "url(/images/grids/bg-morado-bordes.avif)",
+        customClass: {
+          popup: "rounded-3xl shadow shadow-6",
+          container: 'custom-background',
+          cancelButton: "rounded-xl",
+          confirmButton: "rounded-xl",
+          input: "rounded-xl border border-stroke bg-dark-2 shadow shadow-xl text-base text-white outline-none transition placeholder:text-dark-6 focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white dark:focus:border-primary", // Personalización del input
+        },
+        preConfirm: (value) => {
+          if (!value) {
+            Swal.showValidationMessage('¡Debes ingresar un motivo!');
+            return false;
+          }
+          return value;
+        },
+      }).then((res) => {
+        if (res.isConfirmed) {
+          const motivoDenegacion = res.value;
+          toast.promise(
+            denyReservationById(row.id_reservation, motivoDenegacion),
+             {
+               loading: 'Denegando...',
+               success: <b>Reserva Denegada!</b>,
+               error: <b>Error al intentar a la Reserva.</b>,
+             }
+           );
+
+          console.log("Motivo de denegación:", motivoDenegacion);
+        }
+        return res.isConfirmed || false;
+      });
+
+        break;
+
+      case 'Finalizar':
+        confirmationMessage = '¿Estás seguro de que deseas finalizar esta reserva?';
+        result = await Swal.fire({
+          title: 'Confirmación',
+          text: confirmationMessage,
+          iconColor: "#000",
+          color: "#000",
+          icon: 'warning',
+          showCancelButton: true,
+          cancelButtonColor: "#000",
+          confirmButtonColor: "#000",
+          confirmButtonText: 'Finalizar',
+          cancelButtonText: 'Cancelar',
+          reverseButtons: true,
+          background: "url(/images/grids/bg-morado-bordes.avif)",
+          customClass: {
+            popup: "rounded-3xl shadow shadow-6",
+            container: 'custom-background',
+            cancelButton: "rounded-xl",
+            confirmButton: "rounded-xl",
+          }
+        }).then((res) => res.isConfirmed);
+        
+        if (result) {
+
+          confirmationMessage = 'Esta es la Lista de Chequeo';
+          result = await Swal.fire({
+          title: 'Confirmación',
+          html: `<span class="font-bold">Tabla para la lista de chequeo, indica las cantidades dañadas de los productos</span>`,
+          text: confirmationMessage,
+          iconColor: "#000",
+          color: "#000",
+          icon: 'warning',
+          showCancelButton: true,
+          cancelButtonColor: "#000",
+          confirmButtonColor: "#000",
+          confirmButtonText: 'Finalizar',
+          cancelButtonText: 'Cancelar',
+          reverseButtons: true,
+          background: "url(/images/grids/bg-morado-bordes.avif)",
+          customClass: {
+            popup: "rounded-3xl shadow shadow-6",
+            container: 'custom-background',
+            cancelButton: "rounded-xl",
+            confirmButton: "rounded-xl",
+          }
+        }).then((res) => res.isConfirmed);
+
+          if (result) {
+            toast.promise(
+              finalizeReservationById(row.id_reservation),
+               {
+                 loading: 'Finalizando...',
+                 success: <b>Reserva Finalizada!</b>,
+                 error: <b>Error al intentar finalizar la Reserva.</b>,
+               }
+             );
+          }
+          
+        }
+        break;
+
+      case 'Anular':
+      
+        result = await Swal.fire({
+          title: 'Motivo de anulación',
+          html: `Cuéntale a <span class="font-bold">${row.name_client}</span> el motivo de la anulación:`,
+          iconColor: "#000",
+          color: "#000",
+          icon: 'question',
+          input: 'text', // Agrega un input de texto
+          inputPlaceholder: 'Escribe tu motivo aquí...', // Placeholder para el input
+          showCancelButton: true,
+          cancelButtonColor: "#000",
+          confirmButtonColor: "#000",
+          confirmButtonText: 'Anular',
+          cancelButtonText: 'Cancelar',
+          reverseButtons: true,
+          background: "url(/images/grids/bg-morado-bordes.avif)",
+          customClass: {
+            popup: "rounded-3xl shadow shadow-6",
+            container: 'custom-background',
+            cancelButton: "rounded-xl",
+            confirmButton: "rounded-xl",
+            input: "rounded-xl border border-stroke bg-dark-2 shadow shadow-xl text-base text-white outline-none transition placeholder:text-dark-6 focus:border-primary focus-visible:shadow-none dark:border-dark-3 dark:text-white dark:focus:border-primary", // Personalización del input
+          },
+          preConfirm: (value) => {
+            if (!value) {
+              Swal.showValidationMessage('¡Debes ingresar un motivo!');
+              return false;
+            }
+            return value;
+          },
+        }).then((res) => {
+          if (res.isConfirmed) {
+            const motivoAnulacion = res.value;
+            toast.promise(
+              annularReservationById(row.id_reservation, motivoAnulacion),
+               {
+                 loading: 'Anulando...',
+                 success: <b>Reserva Anulada!</b>,
+                 error: <b>Error al intentar anular la Reserva.</b>,
+               }
+             );
+  
+            console.log("Motivo de anulación:", motivoAnulacion);
+          }
+          return res.isConfirmed || false;
+        });
+        break;
+
+      default:
+        break;
     }
   };
 
@@ -90,43 +333,34 @@ const Row: React.FC<RowProps> = ({ row }) => {
           cursor: 'pointer',
           '&:hover': {
             backgroundColor: '#f7f7f7',
-            boxShadow: '4px 4px 16px rgba(0, 0, 0, 0.4)'
-          }
+            boxShadow: '4px 4px 16px rgba(0, 0, 0, 0.4)',
+          },
         }}
         onClick={() => setOpen(!open)}
       >
-        <TableCell>
-          {/* <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
-            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-          </IconButton> */}
-          Nada
-        </TableCell>
         <TableCell component="th" scope="row">{row.id_reservation}</TableCell>
-        <TableCell align="right">{row.id_user}</TableCell>
-        <TableCell align="right">{row.start_date}</TableCell>
-        <TableCell align="right">{row.end_date}</TableCell>
+        <TableCell align="right">{row.name_client}</TableCell>
+        <TableCell align="right">{formatDate(row.start_date)}</TableCell>
+        <TableCell align="right">{formatDate(row.end_date)}</TableCell>
         <TableCell align="right">{row.address}</TableCell>
         <TableCell align="right">{row.city}</TableCell>
         <TableCell align="right">{row.neighborhood}</TableCell>
+        <TableCell align="right">{formatCurrency(row.total_reservation)}</TableCell>
         <TableCell align="right">
-          {/* <Chip
-            sx={{
-              pl: '4px',
-              pr: '4px',
-              ml: 1,
-              backgroundColor: row.statusColor,
-              borderRadius: '8px',
-              boxShadow: '4px 4px 16px rgba(0, 0, 0, 0.2)',
-              color: getTextColor(row.statusColor),
-              fontWeight: 'bold',
-              cursor: 'default'
-            }}
-            size="small"
-            label={row.status}
-          /> */}
           <Typography>{row.status}</Typography>
         </TableCell>
+        <TableCell align="right">
+        <Button
+            variant="outlined"
+            onClick={(event) => handleActionClick(row.id_reservation, event)} 
+            startIcon={<RuleRoundedIcon />}
+            style={{ margin: '0 5px', borderRadius: '10px' }}
+          >
+            Acciones
+          </Button>
+        </TableCell>
       </TableRow>
+
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={10000}>
           <Collapse in={open} timeout="auto" unmountOnExit>
@@ -151,64 +385,20 @@ const Row: React.FC<RowProps> = ({ row }) => {
                               <TableCell align="left">{detail.id_product}</TableCell>
                               <TableCell component="th" scope="row">{detail.name}</TableCell>
                               <TableCell align="right">{detail.quantity}</TableCell>
-                              <TableCell align="right">{detail.unit_price}</TableCell>
-                              <TableCell align="right">{detail.total_price}</TableCell>
+                              <TableCell align="right">{formatCurrency(detail.unit_price)}</TableCell>
+                              <TableCell align="right">{formatCurrency(detail.total_price)}</TableCell>
                             </TableRow>
                           </Tooltip>
                         ))}
                         <TableRow>
-                          <TableCell colSpan={5}>
-                            <Divider style={{ borderColor: '#000', fontSize: 25 }}>Cotización</Divider>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
                           <TableCell rowSpan={3} />
-                          <TableCell rowSpan={3} />
-                          <TableCell colSpan={2}><Typography variant="h3">Subtotal</Typography></TableCell>
-                          <TableCell align="right"><Typography variant="h4">{formatCurrency(row.total_reservation)}</Typography></TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell colSpan={2}><Typography variant="h3">Total</Typography></TableCell>
-                          <TableCell align="right">
-                            <Card sx={{ m: 0, p: 1, backgroundColor: '#52c41a', color: 'white', borderRadius: '8px', boxShadow: '4px 4px 16px rgba(0, 0, 0, 0.2)', cursor: 'default' }}>
-                              <Typography variant="h4">{formatCurrency(row.total_reservation)}</Typography>
-                            </Card>
-                          </TableCell>
+                          <TableCell colSpan={2}>Subtotal</TableCell>
+                          <TableCell align="right">{formatCurrency(row.total_reservation)}</TableCell>
                         </TableRow>
                       </TableBody>
                     </Table>
                   }
                 />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '30%' }}>
-                {loadingReservationId === row.id_reservation ? (
-                  <div /* align="center" */>
-                    {(() => {
-                      const color = loadingInfo === 'approve' ? 'success' : 'error';
-                      const text = loadingInfo === 'approve' ? 'Aprobando ...' : 'Denegando ...';
-                      return (
-                        <div>
-                          {/* <CircularProgress size={100} color={color} /> */}
-                          <Loader />
-                          <Typography variant="h3">{text}</Typography>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                ) : (
-                  <div>
-                    {/* {row.status === 'En Espera' && (
-                      <>
-                        <ButtonBasic text="Aprobar" Icon={CheckOutlinedIcon} Color="#52c41a" height="40px" width="100%" onclick={() => approveReservation(row)} />
-                        <ButtonBasic text="Denegar" Icon={CloseOutlinedIcon} Color="#FF5F5F" height="40px" width="100%" onclick={() => denyReservation(row)} />
-                      </>
-                    )}
-                    {row.status === 'Aprobado' && (
-                      <ButtonBasic text="Denegar" Icon={CloseOutlinedIcon} Color="#FF5F5F" height="40px" width="100%" onclick={() => denyReservation(row)} />
-                    )} */}
-                    <Typography>Botones para aceptar y denegar</Typography>
-                  </div>
-                )}
               </div>
             </div>
           </Collapse>
@@ -218,145 +408,108 @@ const Row: React.FC<RowProps> = ({ row }) => {
   );
 };
 
+const ReservationsTable: React.FC = () => {
+  const [reservationsData, setReservationsData] = useState<Reserva[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [searchText, setSearchText] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string | null>(null); 
+  const searchInput = useRef<HTMLInputElement>(null);
+  const [changeStatus, setChangeStatus] = useState(false);
 
+  const fetchData = async () => {
+    setLoading(true);
+    const response = await fetchReservations();
+    setReservationsData(response);
+    setLoading(false);
+  };
 
+  const sortReservations = (direction: 'asc' | 'desc') => {
+    const sortedData = [...reservationsData].sort((a, b) => {
+      if (direction === 'asc') {
+        return a.id_reservation - b.id_reservation;
+      } else {
+        return b.id_reservation - a.id_reservation;
+      }
+    });
+    setReservationsData(sortedData);
+  };
 
-const dataProductos = () => {
-  const [data, setData] = useState<Reserva[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Estados para paginación
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const handleSortToggle = () => {
+    const newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    setSortDirection(newDirection);
+    sortReservations(newDirection);
+  };
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const reservas = await fetchReservations();
-        setData(reservas);
-      } catch (error) {
-        console.error("Error fetching reservations:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, []);
+    fetchData();
+  }, [changeStatus]);
 
+  const uniqueStatuses = Array.from(new Set(reservationsData.map(row => row.status)));
 
+  const filteredData = reservationsData.filter((row) => {
+    const matchesSearch = row.name_client.toLowerCase().includes(searchText.toLowerCase());
+    const matchesStatus = statusFilter ? row.status === statusFilter : true;
+    return matchesSearch && matchesStatus;
+  });
 
-
-
-
-
-
-
-  const handleChangeStatus = async (id: any) => {
-    try {
-      const response = await changeStatus(id);
-      return response;
-    } catch (error) {
-      console.error("Error al cambiar el estado de la reserva:", error);
-      return false;
-    }
-  };
-
-  const handlePageChange = (newPage: number) => setCurrentPage(newPage);
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setCurrentPage(1); 
-  };
-
-  const paginatedData = data.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
-  const totalPages = Math.ceil(data.length / rowsPerPage);
+  if (loading) {
+    return <LoaderBasic />;
+  }
 
   return (
-    <div>
-      
-
-      {/* Tabla */}
-      <TableContainer>
-      <Table aria-label="collapsible table">
+    <TableContainer component={Paper}>
+      <Button onClick={handleSortToggle}>
+        <SwapVertRoundedIcon />
+      </Button>
+      <Table sx={{ minWidth: 650 }} aria-label="reservations table">
         <TableHead>
           <TableRow>
-
-            <TableCell className="px-2 pb-3.5 font-medium text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold xsm:text-base">Nombre</h1>
+            <TableCell>ID</TableCell>
+            <TableCell align="right">
+              Cliente{" "}
+              <Input className="rounded-xl"
+                ref={searchInput}
+                placeholder="Buscar"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: 100 }}
+                prefix={<SearchOutlined />}
+              />
             </TableCell>
-            <TableCell align="center" className="px-2 pb-3.5 font-medium text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold xsm:text-base">Categoria</h1>
+            <TableCell align="right">Fecha Inicio</TableCell>
+            <TableCell align="right">Fecha Fin</TableCell>
+            <TableCell align="right">Dirección</TableCell>
+            <TableCell align="right">Ciudad</TableCell>
+            <TableCell align="right">Barrio</TableCell>
+            <TableCell align="right">Teléfono</TableCell>
+            <TableCell align="right">
+              Estado :{" "}
+              <select className="rounded-xl"
+                value={statusFilter || ""}
+                onChange={(e) => setStatusFilter(e.target.value || null)}
+                style={{ width: 90  }}
+              >
+                <option value="">Todos</option>
+                {uniqueStatuses.map((status, index) => (
+                  <option key={index} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
             </TableCell>
-            <TableCell align="center" className="px-2 pb-3.5 font-medium text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold xsm:text-base">Precio</h1>
-            </TableCell>
-            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold xsm:text-base">Disponibilidad</h1>
-            </TableCell>
-            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold  xsm:text-base">Descripción</h1>
-            </TableCell>
-            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium  text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold  xsm:text-base">Estado</h1>
-            </TableCell>
-            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium  text-sm dark:text-dark-6">
-              <h1 className="text-sm font-semibold  xsm:text-base">Acciones</h1>
-            </TableCell>
+            <TableCell align="right">Acción</TableCell>
           </TableRow>
-          
         </TableHead>
         <TableBody>
-        {loading && (
-            <TableRow>
-              <TableCell colSpan={100}>
-                {/* <SkeletonTable />
-                <SkeletonTable />
-                <SkeletonTable /> */}
-              </TableCell>
-            </TableRow>
-          )}
-          {data.map((row) => (
-            // <Row key={row.id_reservation} row={row} /* fetchData={}  *//>
-
-            <div>Nada</div>
+          {filteredData.map((row) => (
+            <Row key={row.id_reservation} row={row} />
           ))}
-
         </TableBody>
       </Table>
+      <Toaster position="bottom-right" />
     </TableContainer>
-
-      {/* Controles de Paginación */}
-      <div className="pagination-controls flex justify-between items-center mt-4 ">
-        <Button
-          disabled={currentPage === 1}
-          onClick={() => handlePageChange(currentPage - 1)}
-        >
-          Anterior
-        </Button>
-        <span>
-          Página {currentPage} de {totalPages}
-        </span>
-        <Button
-          disabled={currentPage === totalPages}
-          onClick={() => handlePageChange(currentPage + 1)}
-        >
-          Siguiente
-        </Button>
-      </div>
-      {/* Control de filas por página */}
-      <div className="pagination-controls">
-        <label className="dark:text-white text-black">
-          Filas por página :
-          <input
-            type="number"
-            className="w-20 px-2 py-1 border rounded dark:bg-gray-800 dark:text-white bg-white text-black"
-            value={rowsPerPage}
-            onChange={handleRowsPerPageChange}
-            min="1"
-          />
-        </label>
-      </div>
-    </div>
   );
 };
 
-export default dataProductos;
+export default ReservationsTable;

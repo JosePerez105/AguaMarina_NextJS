@@ -35,13 +35,43 @@ const SignIn: React.FC = () => {
 
         if (data && data.accessDashboard) {
           //Inicio Sesión con permiso a Dashboard
-          
+          let timerInterval: number | NodeJS.Timeout;
+
           await Swal.fire({
             icon: "success",
-            title: "Bienvenido, tienes acceso al Dashboard, pasasss",
-            text: "Acceso concedido.",
-            confirmButtonColor: "#0000ff",
+            iconColor: "#000",
+            color: "#000",
+            title: "Bienvenido!",
+            html: "Redirigiendo al Dashboard en <b>3</b> segundos...",
+            timerProgressBar: true,
+            showConfirmButton: false,
+            timer: 3000,
+            background: "url(/images/grids/bg-morado-bordes.avif)",
+            customClass: {
+              popup: "rounded-3xl shadow shadow-6",
+              container: 'custom-background',
+            },
+            didOpen: () => {
+              const htmlContainer = Swal.getHtmlContainer();
+              if (htmlContainer) {
+                const b = htmlContainer.querySelector("b");
+                if (b) {
+                  let remainingTime = 3;
+                  timerInterval = setInterval(() => {
+                    remainingTime -= 1;
+                    b.textContent = remainingTime.toString();
+                    if (remainingTime <= 0) {
+                      clearInterval(timerInterval);
+                    }
+                  }, 1000);
+                }
+              }
+            },
+            willClose: () => {
+              clearInterval(timerInterval);
+            },
           });
+
           router.push("/admin");
           setLoadingLogin(true);
         } else {
@@ -166,8 +196,7 @@ const SignIn: React.FC = () => {
                           <div className="mb-9">
                             <button
                               type="submit"
-                              className="flex w-full cursor-pointer items-center justify-center rounded-md border border-primary bg-primary px-5 py-3 text-base text-white transition duration-300 ease-in-out hover:bg-primary/90"
-                            >
+                              className="flex w-full cursor-pointer items-center justify-center rounded-md border border-primary bg-primary px-5 py-3 text-base text-white transition duration-300 ease-in-out hover:bg-primary/90">
                               Ingresar 
                             </button>
                           </div>

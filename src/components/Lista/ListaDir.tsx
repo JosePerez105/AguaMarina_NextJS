@@ -20,6 +20,7 @@ const ListaDir: React.FC<{ id_user: number | string, handleClose?: any }> = ({ i
   const [ciudades, setCiudades] = useState<Ciudad[]>([]);
   const [direcciones, setDirecciones] = useState<Direccion[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
+ /*  const [isButtonDisabled, setIsButtonDisabled] = useState(false); */
   const [formData, setFormData] = useState({
     id_user,
     name: "",
@@ -141,9 +142,11 @@ const ListaDir: React.FC<{ id_user: number | string, handleClose?: any }> = ({ i
               neighborhood: "",
               reference: "",
             });
+
+/*             setIsButtonDisabled(true); */
         }
       } else {
-        alert("Dirección no encontrada");
+/*         setIsButtonDisabled(false); */
       }
     });
   };
@@ -288,18 +291,25 @@ const ListaDir: React.FC<{ id_user: number | string, handleClose?: any }> = ({ i
   }));
 
   return (
-    <div className="p-4 bg-white dark:bg-dark-3 rounded-md shadow-md">
-      <Title level={4} className="text-center mb-4">Lista de Direcciones</Title>
+    <div className="p-4 bg-white dark:bg-dark-3 rounded-md shadow-md ">
+      <Title level={4} className="text-center mb-4 dark:text-white">Lista de Direcciones</Title>
       <Collapse items={collapseItems} />
 
-      <Button
+      {/* <Button
         type="primary"
         className="mb-4"
         onClick={() => setShowCreateForm(!showCreateForm)}
       >
         Crear Dirección
-      </Button>
+      </Button> */}
 
+      <button
+        onClick={() => setShowCreateForm(!showCreateForm)}
+        className=" mb-5 flex w-full cursor-pointer items-center justify-center rounded-md border border-primary bg-primary px-5 py-3 text-base text-white transition duration-300 ease-in-out hover:bg-primary/90"
+        >
+        Crear Dirección
+        </button>
+      
       {showCreateForm && (
         <Form
           layout="vertical"
@@ -388,7 +398,7 @@ const ListaDir: React.FC<{ id_user: number | string, handleClose?: any }> = ({ i
 
           {/* Mapa de Google Maps */}
           <Form.Item>
-            <button type="submit">Crear</button>
+            <button type="submit" /* disabled={isButtonDisabled} */>Crear</button>
           </Form.Item>
           <Col>
             <div id="map" ref={mapRef} style={{ width: "100%", height: "400px", marginTop: "20px" }} />

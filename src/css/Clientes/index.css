@@ -82,3 +82,13 @@ body {
 .anticon .anticon-swap-right {
   @apply bg-red
 }
+
+.ant-picker-input > input {
+  color: #9ca3af  !important;
+}
+
+.swal2-container.custom-background {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}

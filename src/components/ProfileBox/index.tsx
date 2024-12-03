@@ -122,9 +122,9 @@ const ProfileDash: React.FC = () => {
     event.preventDefault();
     if (isSubmitting) return;
     if (!validateFields()) return;
-
+  
     setIsSubmitting(true);
-
+  
     try {
       const response = await fetch(
         `https://api-aguamarina-mysql-v2.onrender.com/api/v2/users/${clientData.id_user}`,
@@ -135,14 +135,15 @@ const ProfileDash: React.FC = () => {
             Accept: "application/json",
           },
           body: JSON.stringify(clientData),
-        },
+        }
       );
-
+  
       const responseJson = await response.json();
+  
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error(responseJson.message || "Network response was not ok");
       }
-
+  
       if (responseJson.ok) {
         await fetchClientData();
         Swal.fire({
@@ -151,11 +152,10 @@ const ProfileDash: React.FC = () => {
           text: "Tus datos se han actualizado correctamente!",
         });
       } else {
-        const errorMessage = responseJson.message || "Error Desconocido";
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: errorMessage,
+          text: responseJson.message || "Error Desconocido",
         });
       }
     } catch (error) {
@@ -192,6 +192,7 @@ const ProfileDash: React.FC = () => {
       });
     }
   };
+  
 
   return (
     <Container>
@@ -292,15 +293,16 @@ const ProfileDash: React.FC = () => {
                 />
               </Grid>
             </Grid>
-            <div style={{ textAlign: "center", marginTop: "20px" }}>
+            <div style={{ textAlign: "center", marginTop: "20px"}}>
               <Button
-                className="mt-4 inline-block rounded-md bg-primary px-4 py-2 text-center text-sm font-medium text-white transition duration-300 hover:bg-primary/90 lg:mt-0"
+                className="mt-4 rounded-xl bg-primary px-4 py-2 text-center text-sm font-medium text-white transition duration-300 hover:bg-primary/90 lg:mt-0 capitalize mr-4"
                 disabled={isSubmitting}
+                onClick={handleSubmit}
               >
-                {isSubmitting ? "Actualizando..." : "Actualizar"}
+              {isSubmitting ? "Actualizando..." : "Actualizar"}
               </Button>
               <Button
-                className="mt-4  rounded-md bg-primary px-4 py-2 text-center text-sm font-medium text-white transition duration-300 hover:bg-primary/90 lg:mt-0 capitalize"
+                className="mt-4 rounded-xl bg-primary px-4 py-2 text-center text-sm font-medium text-white transition duration-300 hover:bg-primary/90 lg:mt-0 capitalize"
                 onClick={handleLogout}
               >
                 Cerrar sesión

@@ -5,7 +5,7 @@ import changeStatus from "@/api/functions/changeStatus_Productos";
 import ButtonDelete from "@/components/Buttons/ButtonDelete";
 import { Compra } from "@/types/admin/Compra";
 import { useEffect, useState } from "react";
-import Loader from "@/components/common/Loader";
+import LoaderBasic from "@/components/Loaders/LoaderBasic";
 import ButtonDeny from "@/components/Buttons/ButtonDeny";
 
 
@@ -37,6 +37,7 @@ function formatDate(value: string | Date): string {
     year: 'numeric',
   }).format(dateValue);
 }
+
 
 
 const dataCompras = () => {
@@ -102,7 +103,7 @@ const dataCompras = () => {
             <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium  text-sm dark:text-dark-6">
               <h1 className="text-sm font-semibold xsm:text-base">Estado</h1>
             </TableCell>
-            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium  text-sm dark:text-dark-6">
+            <TableCell align="center" className="hidden sm:table-cell px-2 pb-3.5 font-medium text-sm dark:text-dark-6" style={{ width: '225px' }} >
               <h1 className="text-sm font-semibold xsm:text-base">Acciones</h1>
             </TableCell>
           </TableRow>
@@ -112,7 +113,7 @@ const dataCompras = () => {
         {loading ? (
           <TableRow>
             <TableCell colSpan={1000}>
-              <Loader/>
+              <LoaderBasic/>
             </TableCell>
           </TableRow>
         ) :  
@@ -172,7 +173,7 @@ const dataCompras = () => {
               </TableCell>
               <TableCell align="center" className="hidden sm:table-cell px-6 py-4">
                 <div className="gap-4 flex flex-col min-w-[100px] m-3">
-                  <ButtonDelete />
+                  <ButtonDelete onClick={() => {console.log("Presionado Eliminar")}}/>
                 </div>
               </TableCell>
             </TableRow>

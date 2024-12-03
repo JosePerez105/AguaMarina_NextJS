@@ -342,7 +342,7 @@ const editarProducto: React.FC<{ handleClose: () => void }> = ({ handleClose }) 
                     <button type="submit" className="flex w-full justify-center rounded-[7px] bg-primary p-[13px] font-medium text-white hover:bg-opacity-90">
                         Crear producto
                     </button>
-                </div>
+                </div> 
             </form>
             <Toaster
                 position="top-right"

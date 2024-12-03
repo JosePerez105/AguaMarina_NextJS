@@ -4,8 +4,6 @@ import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLaout";
 import React from "react";
 import { NextUIProvider } from '@nextui-org/react';
-import LoaderFullScreen from "@/components/Loaders/LoaderFullScreen";
-import LoaderBasic from "@/components/Loaders/LoaderBasic";
 
 export const metadata: Metadata = {
   title:
@@ -17,7 +15,6 @@ export default function Home() {
   return (
     <div>
         <ECommerce />
-        <LoaderBasic />
     </div>
   );
 }

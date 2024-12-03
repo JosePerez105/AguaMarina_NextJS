@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Button: React.FC = () => {
+const Button: React.FC<{onClick : any}> = ({onClick}) => {
   return (
     <>
       <style>
@@ -81,9 +81,9 @@ const Button: React.FC = () => {
         `}
       </style>
       <div className="button-wrapper">
-        <button className="btn">
-          <p className="paragraph">Anular</p>
-          <span className="icon-wrapper">
+        <button className="btn" onClick={onClick}>
+          <p className="paragraph dark:text-dark-8">Anular</p>
+          <span className="icon-wrapper text-dark dark:text-dark-8">
             <svg
               className="icon"
               width="30px"

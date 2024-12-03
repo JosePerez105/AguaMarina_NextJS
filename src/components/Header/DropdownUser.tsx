@@ -9,7 +9,7 @@ import { Usuario } from "@/types/admin/Usuario";
 import { logOut } from "@/utils/validationsTokens";
 import Swal from "sweetalert2";
 
-const DropdownUser = () => {
+const DropdownUser: React.FC<{setLoadingLayout : any}> = ({setLoadingLayout}) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -19,8 +19,9 @@ const DropdownUser = () => {
     const loadData = async () => {
       try {
         const {data} = await checkToken();
-        console.log(data.names)
+        console.log(data.names);
         setData(data);
+        setLoadingLayout(false);
       } catch (error) {
         console.error("Error fetching payload:", error);
       } finally {
@@ -31,24 +32,47 @@ const DropdownUser = () => {
     loadData();
   }, []);
 
+
   const logOutHandle = async() => {
     const response = await logOut();
 
     if(response) {
+      let timerInterval: number | NodeJS.Timeout;
       await Swal.fire({
         icon: "success",
-        iconColor: "#fefefe",
-        color: "#fefefe",
-        title: "Cerrar Sesión",
-        text: "Sesión cerrada correctamente",
-        // confirmButtonColor: "#fefefe",
+        iconColor: "#000",
+        color: "#000",
+        title: "Cerrando Sesión",
+        html: "Redirigiendo a la página principal en <b>3</b> segundos...",
+        timerProgressBar: true,
         showConfirmButton: false,
         timer: 3000,
-        background: "url(/images/grids/bg-modal-dark.jpeg)",
+        background: "url(/images/grids/bg-morado-bordes.avif)",
         customClass: {
-          popup: 'rounded-3xl shadow shadow-6',
-        }
+          popup: "rounded-3xl shadow shadow-6",
+          container: 'custom-background',
+        },
+        didOpen: () => {
+          const htmlContainer = Swal.getHtmlContainer();
+          if (htmlContainer) {
+            const b = htmlContainer.querySelector("b");
+            if (b) {
+              let remainingTime = 3;
+              timerInterval = setInterval(() => {
+                remainingTime -= 1;
+                b.textContent = remainingTime.toString();
+                if (remainingTime <= 0) {
+                  clearInterval(timerInterval);
+                }
+              }, 1000);
+            }
+          }
+        },
+        willClose: () => {
+          clearInterval(timerInterval);
+        },
       });
+
     }
     router.push("/login")
     

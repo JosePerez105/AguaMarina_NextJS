@@ -18,10 +18,6 @@ import LoaderFullScreen from "../Loaders/LoaderFullScreen";
 }) {
   const [loading, setLoading] = useState<boolean>(true);
 
-  // useEffect(() => {
-  //   setTimeout(() => setLoading(false), 1000);
-  // }, []);
-
   return (
     <html suppressHydrationWarning={true} /* className="!scroll-smooth" */ lang="en">
       <head />

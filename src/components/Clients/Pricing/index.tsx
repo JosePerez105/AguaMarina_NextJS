@@ -6,7 +6,7 @@ import { ProductoCliente } from "@/types/Clients/productoCliente";
 import SlideCard from "./SlideCard";
 import Loader from "@/components/common/Loader";
 import LoaderBasic from "@/components/Loaders/LoaderBasic";
-import Fecha from "./FiltroFecha";
+import Fecha from "./FiltroFecha"; 
 
 const Pricing = () => {
   const [products, setProducts] = useState<ProductoCliente[]>([]);
@@ -18,14 +18,28 @@ const Pricing = () => {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
-  const [dateRange, setDateRange] = useState<[string, string] | null>(null);
+  const [dateRange, setDateRange] = useState<[string, string] | null>(() => {
+    const storedDates = sessionStorage.getItem("dates");
+    return storedDates ? JSON.parse(storedDates) : null;
+  });
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await fetch(
-          "https://api-aguamarina-mysql-v2.onrender.com/api/v2/products_catalog",
+          "https://api-aguamarina-mysql-v2.onrender.com/api/v2/products_catalog", {
+            method: dateRange ? "POST" : "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: dateRange
+              ? JSON.stringify({
+                  start_date: dateRange[0],
+                  end_date: dateRange[1],
+                })
+              : null,
+          }
         );
         const data = await response.json();
         const processedData = data.body.map((product: ProductoCliente) => ({
@@ -40,6 +54,7 @@ const Pricing = () => {
         setLoading(false);
       }
     };
+
     fetchProducts();
   }, []);
 
@@ -75,8 +90,8 @@ const Pricing = () => {
             },
             body: dateRange
               ? JSON.stringify({
-                  startDate: dateRange[0],
-                  endDate: dateRange[1],
+                  start_date: dateRange[0],
+                  end_date: dateRange[1],
                 })
               : null,
           },
@@ -131,13 +146,11 @@ const Pricing = () => {
       id="pricing"
       className="relative z-20 min-h-[120vh] overflow-hidden bg-white px-0 pb-20 pt-20 dark:bg-dark sm:px-10 md:px-20 lg:pb-[90px] lg:pt-[120px]"
     >
-      
       <div className="container"
-      style = {{
+      style={{
         filter: isHovered ? "blur(5px)" : "none",
         transition: "filter 0.5s ease"
       }}>
-        
         <div className="mb-10">
           <SectionTitle
             title="Nuestros Productos"
@@ -148,7 +161,6 @@ const Pricing = () => {
         <div
           className="flex flex-col gap-10 md:flex-row md:gap-0"
         >
-          {/* Products */}
           <div
             className="mb-5 w-full md:w-3/4"
             style={{
@@ -163,27 +175,30 @@ const Pricing = () => {
       </div>
       <div>
         <div
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            className="z-50 mt-5"
-            style={{
-              position: "absolute",
-              left: "0%",
-              top: "22%"
-            }}
-          >
-            <div className="mb-5">
-              <Fecha onDateChange={handleDateChange} customClasses="rounded-none rounded-r-xl"/>
-              </div>
-            <SlideCard
-              onSearch={setSearchTerm}
-              onPriceFilter={handlePriceFilter}
-              onDateChange={handleDateChange}
-              products={products}
-              categories={categories}
-              onCategorySelect={handleCategoryFilter}
-            />
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          className="z-50 mt-5"
+          style={{
+            position: "absolute",
+            left: "0%",
+            top: "22%"
+          }}
+        >
+          <div className="mb-5">
+            <span className="block ml-2 mb-2 font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">
+              Selecciona la fecha de tu evento:
+            </span>
+            <Fecha onDateChange={handleDateChange} customClasses="!rounded-none !rounded-r-xl" />
           </div>
+          <SlideCard
+            onSearch={setSearchTerm}
+            onPriceFilter={handlePriceFilter}
+            onDateChange={handleDateChange}
+            products={products}
+            categories={categories}
+            onCategorySelect={handleCategoryFilter}
+          />
+        </div>
       </div>
     </section>
   );

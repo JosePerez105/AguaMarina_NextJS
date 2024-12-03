@@ -9,11 +9,9 @@ export const fetchProducts = async (): Promise<Direccion[]> => {
         },
         cache: "no-store",
       });
-  
       if (!response.ok) {
         throw new Error(`Error: ${response.status} - ${response.statusText}`);
       }
-  
       const data = await response.json();
       return data.body;
     } catch (error) {
@@ -31,11 +29,9 @@ export const fetchAddressesByUser = async (id: string | number): Promise<Direcci
         },
         cache: "no-store",
       });
-
       if (!response.ok) {
         throw new Error(`Error: ${response.status} - ${response.statusText}`);
       }
-      
       const data = await response.json();
       return data.body;
     } catch (error) {

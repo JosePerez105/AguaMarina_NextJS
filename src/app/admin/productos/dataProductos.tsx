@@ -8,7 +8,25 @@ import SwitcherThree from "@/components/FormElements/Switchers/SwitcherThree";
 import changeStatus from "@/api/functions/changeStatus_Productos";
 import { useState, useEffect } from "react";
 import { Producto } from "@/types/admin/Producto";
-import Loader from "@/components/common/Loader";
+import ButtonOnClick from "@/components/Buttons/ButtonOnClick";
+import { Reserva } from "@/types/admin/Reserva";
+import BasicModal from "@/components/Modals/BasicModal";
+import EditarProducto from "./editarProducto";
+import LoaderBasic from "@/components/Loaders/LoaderBasic";
+import dayjs from "dayjs";
+import Fecha from "@/components/Clients/Pricing/FiltroFecha";
+import isBetween from 'dayjs/plugin/isBetween';
+
+dayjs.extend(isBetween);
+
+
+function capitalizeFirstLetter(str: string): string {
+  return str
+    .split(' ') 
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) 
+    .join(' ');
+}
+
 
 function formatCurrency(value: string | number): string {
   const numericValue = typeof value === 'string' ? parseFloat(value) : value;
@@ -26,6 +44,7 @@ function formatCurrency(value: string | number): string {
 const dataProductos = () => {
   const [data, setData] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDates, setSelectedDates] = useState<[string, string] | null>(null);
 
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -37,17 +56,48 @@ const dataProductos = () => {
 
   useEffect(() => {
     const loadData = async () => {
+      setLoading(true);
       try {
-        const productos = await fetchProducts();
-        setData(productos);
+        // Llamada al API con filtro de fechas
+        const response = await fetch("https://api-aguamarina-mysql-v2.onrender.com/api/v2/products_catalog", {
+          method: selectedDates ? "POST" : "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: selectedDates
+            ? JSON.stringify({
+                start_date: selectedDates[0],
+                end_date: selectedDates[1],
+              })
+            : null,
+        });
+        const products = await response.json();
+        setData(products.body); // Asumiendo que los productos están en el campo 'body'
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
         setLoading(false);
       }
     };
+
     loadData();
-  }, []);
+  }, [selectedDates]);
+
+  
+  
+  const filteredData = selectedDates
+  ? data.filter((producto) => {
+      const productDate = dayjs(producto.createdAt); 
+      console.log('Producto fecha:', productDate.format('YYYY-MM-DD'), 'Fechas seleccionadas:', selectedDates);
+      return productDate.isBetween(selectedDates[0], selectedDates[1], 'null', '[]');
+    })
+  : data;
+
+  const handleDateChange = (dates: [string, string] | null) => {
+    setSelectedDates(dates);
+  };
+
+
 
   const handleChangeStatus = async (id: any) => {
     try {
@@ -67,7 +117,7 @@ const dataProductos = () => {
 
 
   // Función para abrir la modal
-  const handleOpenModal = (producto: Product) => {
+  const handleOpenModal = (producto: Producto) => {
     setSelectedProduct(producto);
     setOpenModal(true);
   };
@@ -78,11 +128,18 @@ const dataProductos = () => {
     setSelectedProduct(null);
   };
 
-  const paginatedData = data.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
-  const totalPages = Math.ceil(data.length / rowsPerPage);
+  const paginatedFilteredData = filteredData.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+  const totalFilteredPages = Math.ceil(filteredData.length / rowsPerPage);
 
+  /* const paginatedData = data.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+  const totalPages = Math.ceil(data.length / rowsPerPage);
+ */
   return (
     <div>
+      {/* Filtro de fechas */}
+      <div className="mb-4">
+        <Fecha onDateChange={handleDateChange} />
+      </div>
       
 
       {/* Tabla */}
@@ -117,10 +174,10 @@ const dataProductos = () => {
           {loading ? (
             <TableRow>
               <TableCell colSpan={7} align="center">
-                <Loader />
+                <LoaderBasic />
               </TableCell>
             </TableRow>
-          ) : paginatedData.length === 0 ? ( // Verifica si no hay productos
+          ) : paginatedFilteredData.length === 0 ? ( // Verifica si no hay productos
             <TableRow>
               <TableCell colSpan={7} align="center">
                 <Typography variant="h6" className="py-6 text-gray-500">
@@ -129,15 +186,15 @@ const dataProductos = () => {
               </TableCell>
             </TableRow>
           ) : (
-            paginatedData.map((producto, key) => (
+            paginatedFilteredData.map((producto, key) => (
               <TableRow
                 key={producto.id_product}
                 className={`${
-                  key !== data.length - 1 ? "border-b border-stroke dark:border-dark-3" : ""
+                  key !== filteredData.length - 1 ? "border-b border-stroke dark:border-dark-3" : ""
                 }`}
               >
                 {/* Imagen y Nombre */}
-                <TableCell className="flex items-center gap-3.5 px-2 py-4 flex-col">
+                <TableCell className="flex items-center gap-3.5 px-0.5 py-14 flex-col">
                   <div className="flex items-center gap-3.5 flex-row text-center">
                     <div
                       style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 90, minHeight: 90 }}
@@ -151,15 +208,15 @@ const dataProductos = () => {
                         className="flex-shrink-0 rounded-[10px]"
                       />
                     </div>
-                    <p className="hidden sm:block font-medium font-estandar text-xl text-dark dark:text-dark-6">
-                      {producto.name}
+                    <p className="hidden sm:block font-medium font-estandar text-base text-dark dark:text-dark-6">
+                      {capitalizeFirstLetter(producto.name)}
                     </p>
                   </div>
                 </TableCell>
 
                 {/* Categoría */}
                 <TableCell align="center" className="px-2 py-4">
-                  <p className="font-medium font-estandar text-2xl text-dark dark:text-dark-6">{producto.category}</p>
+                  <p className="font-medium font-estandar text-base text-dark dark:text-dark-6">{producto.category}</p>
                 </TableCell>
 
                 {/* Precio */}
@@ -222,7 +279,7 @@ const dataProductos = () => {
                 {/* Acciones */}
                 <TableCell align="center" className="hidden sm:table-cell px-2 py-4">
                   <div className="gap-4 flex flex-col">
-                    <ButtonDefault
+                    <ButtonOnClick
                       label="Editar"
                       onClick={() => handleOpenModal(producto)}
                       customClasses="text-sm font-semibold border border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-white rounded-[5px] px-10 py-3.5 lg:px-8 xl:px-10"
@@ -250,10 +307,10 @@ const dataProductos = () => {
           Anterior
         </Button>
         <span>
-          Página {currentPage} de {totalPages}
+          Página {currentPage} de {totalFilteredPages}
         </span>
         <Button
-          disabled={currentPage === totalPages}
+          disabled={currentPage === totalFilteredPages}
           onClick={() => handlePageChange(currentPage + 1)}
         >
           Siguiente
@@ -274,7 +331,7 @@ const dataProductos = () => {
       </div>
       {/* Modal para editar producto */}
       {openModal && (
-        <BasicModal tituloBtn="Editar producto" tituloModal="Editar producto" handleClose={handleCloseModal}>
+        <BasicModal tituloBtn="Editar producto" tituloModal="Editar producto" >
           <EditarProducto productId={selectedProduct?.id_product} handleClose={handleCloseModal} />
         </BasicModal>
       )}

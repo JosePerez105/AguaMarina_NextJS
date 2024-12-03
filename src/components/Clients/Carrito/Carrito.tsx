@@ -7,11 +7,13 @@ import { useCart } from '@/context/CartContext';
 import Image from 'next/image';
 import AlertWarning from '@/components/Alerts/AlertWarning';
 import ButtonDefault from '@/components/Buttons/ButtonDefault';
+import { useRouter } from "next/navigation";
 
 const Carrito: React.FC = () => {
   const [open, setOpen] = useState(false);
   const { cartItems, cantBadge, removeFromCart, deleteCart, updateCartItemQuantity } = useCart();
   const [removedItemId, setRemovedItemId] = useState<number | null>(null);
+  const router = useRouter();
 
   const showDrawer = () => setOpen(true);
   const onClose = () => setOpen(false);
@@ -48,6 +50,16 @@ const Carrito: React.FC = () => {
   const handleDecreaseQuantity = (itemId: number) => {
     updateCartItemQuantity(itemId, -1);
   };
+
+  const handleFinalizar = async() => {
+    const dates = sessionStorage.getItem('dates')
+    if (dates) {
+      router.push("/pedido");
+    } else {
+      alert("Selecciona una fecha primero")
+      router.push("/catalogo") //añadir sweetalert
+    }
+  }
 
   return (
     <div className="m-5">
@@ -147,13 +159,12 @@ const Carrito: React.FC = () => {
                 ${cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toLocaleString("en-US")}
               </span>
             </p>
-            <ButtonDefault
-              // onClick={() => { console.log("reservando..."); }}
-              link='/pedido'
+            <ButtonOnClick
+              onClick={handleFinalizar}
               customClasses="mt-4 lg:mt-0 inline-block rounded-md bg-primary px-4 py-2 text-center text-sm font-medium text-white transition duration-300 hover:bg-primary/90 hover:text-white"
             >
               Finalizar reserva
-            </ButtonDefault>
+            </ButtonOnClick>
             <ButtonOnClick 
               onClick={handleDeleteCart}
             >

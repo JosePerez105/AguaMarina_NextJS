@@ -15,6 +15,9 @@ const Fecha: React.FC<FechaProps> = ({ onDateChange, customClasses }) => {
   const disabledDate = (current: any) => {
     return current && current.isBefore(dayjs().startOf('day'), 'day');
   };
+  
+  const dates = JSON.parse(sessionStorage.getItem("dates") || "null");
+
 
   const handleDateChange: RangePickerProps['onChange'] = (dates, dateStrings) => {
     if (dates) {
@@ -42,6 +45,7 @@ const Fecha: React.FC<FechaProps> = ({ onDateChange, customClasses }) => {
           size="large"
           onChange={handleDateChange}
           disabledDate={disabledDate}  
+          defaultValue={dates && dates.length === 2 ? [dayjs(dates[0]), dayjs(dates[1])] : undefined}
           className={`input rounded-xl border-gray-300 px-5 dark:bg-dark-4 text-dark-7 py-3 shadow-lg transition-all w-64 focus:border custom-range-picker ${customClasses}`}
         />
       </Space>

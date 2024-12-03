@@ -6,13 +6,13 @@ import { useState, useEffect } from "react";
 import { fetchProductById, updateProduct } from "@/api/fetchs/get_productos"; // Asegúrate de tener la función updateProduct
 import Swal from "sweetalert2";
 
-const EditarProducto: React.FC<{ productId: number; handleClose: () => void }> = ({ productId, handleClose }) => {
+const EditarProducto: React.FC<{ productId?: number; handleClose: () => void }> = ({ productId = 1, handleClose }) => {
     const [productosOpc, setProductosOpc] = useState<{ id: number; name: string }[]>([]);
     const [formData, setFormData] = useState({
-        id_product: '',
-        total_quantity: '',
-        unit_price: '',
-        purchase_date: '',
+        id_product: 0,
+        total_quantity: 0,
+        unit_price: 0,
+        purchase_date: null,
     });
 
     // Cargar los datos del producto y las opciones
@@ -23,8 +23,8 @@ const EditarProducto: React.FC<{ productId: number; handleClose: () => void }> =
                 setFormData({
                     id_product: producto.id_product,
                     total_quantity: producto.total_quantity,
-                    unit_price: producto.unit_price,
-                    purchase_date: producto.purchase_date.split('T')[0], // Formato YYYY-MM-DD
+                    unit_price: producto.price,
+                    // purchase_date: producto.purchase_date.split('T')[0], // Formato YYYY-MM-DD
                 });
                 
                 // Cargar las opciones de productos

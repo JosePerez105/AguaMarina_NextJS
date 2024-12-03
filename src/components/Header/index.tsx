@@ -8,6 +8,7 @@ import SearchForm from "@/components/Header/SearchForm";
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;
   setSidebarOpen: (arg0: boolean) => void;
+  setLoadingLayout : any;
 }) => {
   return (
     <header className="sticky top-0 z-999 flex w-full border-b border-stroke bg-white dark:border-stroke-dark dark:bg-gray-dark">
@@ -94,7 +95,7 @@ const Header = (props: {
           </ul>
 
           {/* <!-- User Area --> */}
-          <DropdownUser />
+          <DropdownUser setLoadingLayout={props.setLoadingLayout}/>
           {/* <!-- User Area --> */}
         </div>
       </div>
